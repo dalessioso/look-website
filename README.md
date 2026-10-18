@@ -28,7 +28,7 @@ npm ci
 npm run dev
 ```
 
-Open `http://127.0.0.1:8780`. Build with `npm run build`; preview the production output with `npm run preview` after stopping the development server. Run `npm test` for the automated checks. The current build and all 28 frontend tests pass; local browser checks are recorded in [IMPORT-NOTES.md](IMPORT-NOTES.md). The production homepage and restored evaluation have also been verified on Vercel.
+Open `http://127.0.0.1:8780`. Build with `npm run build`; preview the production output with `npm run preview` after stopping the development server. Run `npm test` for the automated checks. The current build and all 34 frontend tests pass; local browser checks are recorded in [IMPORT-NOTES.md](IMPORT-NOTES.md). The production homepage and restored evaluation have also been verified on Vercel.
 
 ## Routes
 
@@ -51,7 +51,7 @@ The Animations page has object-selection and confirmation controls for a browser
 
 ## Camera sources
 
-Open **Live views**, expand **Connect video streams**, enter the source URLs, and choose **Connect feeds**. Image endpoints ending in `.jpg`, `.jpeg`, `.png`, or `.webp` refresh as snapshots; custom MJPEG endpoints display as streams. Connections start only after that explicit action, pause while the workspace is off-page or the document is hidden, and are cleaned up when disconnected. Streams are not recorded by this frontend.
+Open **Live views** to connect the published HTTPS feeds automatically. To use another source, expand **Custom camera URLs**, enter its URLs, and choose **Connect custom feeds**. Image endpoints ending in `.jpg`, `.jpeg`, `.png`, or `.webp` refresh as snapshots; custom MJPEG endpoints display as streams. Published feeds start only while Live views is visible; custom feeds require an explicit connection. Connections pause off-page or when the document is hidden. Disconnect stops them and is respected when returning to the view; Reconnect live feeds starts the published sources again. Streams are not recorded by this frontend.
 
 SSH access to A2000 has been restored. The previous services on ports 8080 and 8769 were unavailable. The existing `scene.live_objects` and `gaze.live --sidecam --arm` processes own the cameras and must remain running; the website does not interrupt them or open the cameras itself.
 
@@ -79,7 +79,7 @@ ssh -N -o ExitOnForwardFailure=yes -L 127.0.0.1:18771:127.0.0.1:8771 A2000
 
 `A2000` is the user's configured SSH alias; no account identity or credentials are embedded in these examples. Stop the bridge and forward with **Ctrl+C** in their respective terminals. The bridge contains no hardware imports, camera-opening code, or robot-control calls. Only its reusable source is included in this repository; raw logs and camera images are not.
 
-These loopback addresses are private to the machine running the tunnel. The HTTPS Vercel site needs browser-reachable **HTTPS camera relay URLs**. The owner has enabled a temporary public relay for the workspace, outward-facing glasses, and wrist alignment snapshots. On the hosted site, choose **Connect live feeds**; local HTTP presets are hidden there. The published session expires at **12:12 PM EDT on October 18, 2026**. Cameras connect only after a click, and public connections are cleared at expiry. Keep credentials out of URLs and frontend code, and expose only camera images through any relay, never robot-control endpoints. The production website is deployed and verified; public camera-feed availability is separate.
+These loopback addresses are private to the machine running the tunnel. The HTTPS Vercel site needs browser-reachable **HTTPS camera relay URLs**. The owner has enabled a temporary public relay for the workspace, outward-facing glasses, and wrist alignment snapshots. On the hosted site, opening **Live views** connects the published feeds; local HTTP presets are hidden there. The published session expires at **12:12 PM EDT on October 18, 2026**. Cameras connect when Live views is visible, and public connections are cleared at expiry. Keep credentials out of URLs and frontend code, and expose only camera images through any relay, never robot-control endpoints. The production website is deployed and verified; public camera-feed availability is separate.
 
 ## Temporary public relay
 
@@ -91,7 +91,7 @@ The SSH forward and snapshot bridge must stay running on the Mac. With `cloudfla
 python3 tools/temporary-public-relay.py --config-output src/showcase/data/public-relay.json
 ```
 
-The command creates a new public URL and expiry in that JSON file. Build and deploy the updated config to publish the new session on Vercel. `Ctrl+C` stops the foreground relay early. A stopped or expired quick tunnel cannot be resumed at its old URL. No camera images are stored in this repository.
+The command creates a new public URL and expiry in that JSON file. Build and deploy the updated config to publish the new session on Vercel. `Ctrl+C` stops the foreground relay early. A stopped, expired, or withdrawn quick tunnel cannot be resumed at its old URL. If its hostname stops resolving, restart the owned relay, validate the replacement image URLs, and deploy the new config; keeping the old process alive will not restore a withdrawn hostname. The relay uses [Cloudflare’s HTTP/2 transport](https://developers.cloudflare.com/tunnel/troubleshooting/) over TCP after the booth network interrupted its QUIC connection. No camera images are stored in this repository.
 
 Run the relay boundary checks with `python3 -B -m unittest discover -s tools -p 'test_temporary_public_relay.py' -v`. Nine tests cover path/method restrictions, expiry, image validation, bounded reads, error handling, and redirects.
 

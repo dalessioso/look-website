@@ -84,11 +84,11 @@
 <span class="eyebrow">Video inputs</span>
 </div>
 <div class="live-feed-controls">
-<button type="button" id="connect-live-feeds" hidden>Connect live feeds</button>
+<button type="button" id="connect-live-feeds" hidden>Reconnect live feeds</button>
 <button type="button" id="disconnect-streams">Disconnect</button>
 <span id="public-relay-hint" hidden></span>
 </div>
-<p class="stream-help" id="stream-help" role="status">Connect the live session or add camera URLs below. Feeds are not recorded here.</p>
+<p class="stream-help" id="stream-help" role="status">Live camera feeds start when this view opens. Feeds are not recorded here.</p>
 <div class="streams">
 <section class="stream">
 <h3>Wrist camera</h3>
@@ -99,7 +99,7 @@
 <rect x="3" y="7" width="26" height="20" rx="4"/>
 <circle cx="16" cy="17" r="5"/>
 <path d="m10 7 3-4h6l3 4"/>
-</svg>No stream connected</div>
+</svg><span id="empty-message-wrist">Waiting for a fresh wrist alignment frame…</span></div>
 <img id="feed-wrist" alt="Wrist camera live stream" hidden referrerpolicy="no-referrer">
 <span class="feed-status" id="status-wrist">Not connected</span>
 </div>
@@ -113,7 +113,7 @@
 <rect x="3" y="7" width="26" height="20" rx="4"/>
 <circle cx="16" cy="17" r="5"/>
 <path d="m10 7 3-4h6l3 4"/>
-</svg>No stream connected</div>
+</svg><span id="empty-message-overhead">Waiting to connect…</span></div>
 <img id="feed-overhead" alt="Workspace camera live stream" hidden referrerpolicy="no-referrer">
 <span class="feed-status" id="status-overhead">Not connected</span>
 </div>
@@ -127,7 +127,7 @@
 <rect x="3" y="7" width="26" height="20" rx="4"/>
 <circle cx="16" cy="17" r="5"/>
 <path d="m10 7 3-4h6l3 4"/>
-</svg>No stream connected</div>
+</svg><span id="empty-message-user">Waiting to connect…</span></div>
 <img id="feed-user" alt="User perspective live stream" hidden referrerpolicy="no-referrer">
 <span class="feed-status" id="status-user">Not connected</span>
 </div>

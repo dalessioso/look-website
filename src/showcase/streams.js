@@ -131,6 +131,11 @@ export function initializeStreams({ relay = publishedRelay, now = Date.now, setT
   const published = publicRelayConfig(relay);
   let expiryTimer;
   let sources = {};
+  let automaticConnectionPending = true;
+  let manuallyDisconnected = false;
+  let pageHidden = false;
+  let leaseEnded = false;
+  const viewVisible = () => !pageHidden && !document.hidden && document.body.dataset.page === 'studio';
   const isPublishedSource = source => {
     if (!published || !source) return false;
     const url = new URL(source.url);
@@ -139,9 +144,10 @@ export function initializeStreams({ relay = publishedRelay, now = Date.now, setT
   localButton.hidden = location.protocol === 'https:';
   publicButton.hidden = !published;
   publicButton.disabled = false;
-  publicButton.textContent = 'Connect live feeds';
+  publicButton.textContent = 'Reconnect live feeds';
   publicHint.hidden = !published;
   if (published) publicHint.textContent = `Temporary live session until ${new Date(published.expiresAt).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', timeZoneName: 'short' })}.`;
+  else help.textContent = 'Add camera URLs below to connect a feed. No live session is configured.';
 
   const feeds = Object.fromEntries(keys.map(key => [key, createFeedConnection({
     image: document.getElementById('feed-' + key),
@@ -149,14 +155,21 @@ export function initializeStreams({ relay = publishedRelay, now = Date.now, setT
     onState(state) {
       states[key] = state;
       const status = document.getElementById('status-' + key);
-      status.textContent = state;
+      status.textContent = state === 'Unavailable' ? 'Retrying' : state === 'Not connected' ? 'Disconnected' : state;
       status.classList.toggle('live', state === 'Connected');
       document.getElementById('empty-' + key).hidden = state === 'Connected';
+      const message = document.getElementById('empty-message-' + key);
+      if (message) message.textContent = state === 'Connecting'
+        ? key === 'wrist' ? 'Waiting for a fresh wrist alignment frame…' : 'Connecting to the camera…'
+        : state === 'Unavailable'
+          ? key === 'wrist' ? 'No fresh wrist alignment frame yet. Retrying…' : 'Camera image unavailable. Retrying…'
+          : state === 'Paused' ? 'Feed paused while this view is hidden.'
+            : state === 'Connected' ? 'Camera image received.' : 'Feed disconnected.';
       const connected = Object.values(states).filter(value => value === 'Connected').length;
       const activity = connected ? `${connected} feed${connected === 1 ? '' : 's'} connected`
         : Object.values(states).includes('Paused') ? 'Feeds paused'
         : Object.values(states).includes('Connecting') ? 'Connecting feeds'
-        : Object.values(states).includes('Unavailable') ? 'Feeds unavailable' : 'No feeds connected';
+        : Object.values(states).includes('Unavailable') ? 'Retrying feeds' : 'No feeds connected';
       document.getElementById('activity').textContent = activity;
       document.querySelector('.connection .dot').classList.toggle('live', connected > 0);
     },
@@ -176,7 +189,8 @@ export function initializeStreams({ relay = publishedRelay, now = Date.now, setT
         disconnected = true;
       }
     }
-    if (disconnected) help.textContent = 'Live session ended. Temporary camera feeds have been disconnected.';
+    if (disconnected || !leaseEnded) help.textContent = 'Live session ended. Temporary camera feeds have been disconnected.';
+    leaseEnded = true;
     return false;
   }
   function scheduleExpiry() {
@@ -187,8 +201,12 @@ export function initializeStreams({ relay = publishedRelay, now = Date.now, setT
     }, Math.min(published.expiresAt - now(), 2147483647));
   }
   const pause = () => {
-    checkLease();
-    Object.values(feeds).forEach(feed => feed.setSuspended(document.hidden || document.body.dataset.page !== 'studio'));
+    const leaseActive = checkLease();
+    Object.values(feeds).forEach(feed => feed.setSuspended(!viewVisible()));
+    if (viewVisible() && automaticConnectionPending && !manuallyDisconnected && leaseActive) {
+      automaticConnectionPending = false;
+      connectPublishedSources();
+    }
   };
   function connectSources() {
     checkLease();
@@ -207,22 +225,49 @@ export function initializeStreams({ relay = publishedRelay, now = Date.now, setT
   }
   listen(document.getElementById('stream-form'), 'submit', event => {
     event.preventDefault();
+    automaticConnectionPending = false;
+    manuallyDisconnected = false;
     connectSources();
   });
+  function connectPublishedSources() {
+    if (!published || !checkLease()) return;
+    const paths = { wrist: 'wrist.jpg', overhead: 'side.jpg', user: 'front.png' };
+    let connected = 0;
+    for (const key of keys) {
+      const input = document.getElementById('source-' + key);
+      // A preset must not replace an active custom feed or even an unsubmitted
+      // custom URL. Those remain under the custom form's explicit control.
+      if (sources[key] && !isPublishedSource(sources[key])) continue;
+      if (input.value.trim()) {
+        try {
+          if (!isPublishedSource(parseStreamUrl(input.value, location.protocol))) continue;
+        } catch { continue; }
+      }
+      const nextSource = parseStreamUrl(new URL(paths[key], published.base).href, location.protocol);
+      input.value = nextSource.url;
+      sources[key] = nextSource;
+      feeds[key].connect(nextSource);
+      connected++;
+    }
+    if (connected) help.textContent = 'Live camera images refresh automatically while this view is open. The wrist view appears when a fresh alignment image is available.';
+    else help.textContent = 'Custom camera sources are preserved. Use Connect custom feeds to connect or change them.';
+  }
   listen(publicButton, 'click', () => {
     if (!published || !checkLease()) return;
-    document.getElementById('source-wrist').value = new URL('wrist.jpg', published.base).href;
-    document.getElementById('source-overhead').value = new URL('side.jpg', published.base).href;
-    document.getElementById('source-user').value = new URL('front.png', published.base).href;
-    connectSources();
+    automaticConnectionPending = false;
+    manuallyDisconnected = false;
+    connectPublishedSources();
   });
   listen(document.getElementById('disconnect-streams'), 'click', () => {
+    automaticConnectionPending = false;
+    manuallyDisconnected = true;
     Object.values(feeds).forEach(feed => feed.disconnect());
     sources = {};
-    help.textContent = 'Feeds disconnected.';
+    help.textContent = 'Feeds disconnected. Select Reconnect live feeds or Connect custom feeds to resume.';
   });
   listen(localButton, 'click', () => {
     if (location.protocol === 'https:') return;
+    automaticConnectionPending = false;
     document.getElementById('source-wrist').value = 'http://127.0.0.1:18771/wrist.jpg';
     document.getElementById('source-overhead').value = 'http://127.0.0.1:18771/side.jpg';
     document.getElementById('source-user').value = 'http://127.0.0.1:18771/front.png';
@@ -230,8 +275,9 @@ export function initializeStreams({ relay = publishedRelay, now = Date.now, setT
   });
   listen(document, 'visibilitychange', pause);
   listen(window, 'look:page', pause);
-  listen(window, 'pagehide', () => Object.values(feeds).forEach(feed => feed.setSuspended(true)));
-  listen(window, 'pageshow', pause);
+  listen(window, 'pagehide', () => { pageHidden = true; pause(); });
+  listen(window, 'pageshow', () => { pageHidden = false; pause(); });
+  Object.values(feeds).forEach(feed => feed.disconnect());
   pause();
   scheduleExpiry();
   const cleanup = () => { events.abort(); clearTimer(expiryTimer); Object.values(feeds).forEach(feed => feed.disconnect()); };

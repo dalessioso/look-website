@@ -22,7 +22,7 @@ The previous React application has its own `legacy.html` entry for `/demo`, `/da
 
 The source presentation expects Python services with process-wide state and server-side sponsor credentials. A static frontend deployment cannot reproduce those services by including their scripts or configuration. The current showcase displays connected camera sources and saved data; it does not control the arm or run Chalk, Factory, gaze, blink, or voice services.
 
-Visitors must explicitly connect supplied source URLs. `.jpg`, `.jpeg`, `.png`, and `.webp` image endpoints refresh as snapshots; custom MJPEG endpoints display as streams. Camera activity pauses when Live views is off-page or the document is hidden, and disconnect removes active sources and refresh work. The frontend does not record streams or automatically request camera or microphone access. Displaying a feed neither authorizes robot movement nor establishes robot performance.
+The published HTTPS camera feeds connect automatically when Live views is visible. Visitors must explicitly connect custom source URLs. Manual disconnect is preserved across navigation and visibility changes. `.jpg`, `.jpeg`, `.png`, and `.webp` image endpoints refresh as snapshots; custom MJPEG endpoints display as streams. Camera activity pauses when Live views is off-page or the document is hidden, and disconnect removes active sources and refresh work. The frontend does not record streams or automatically request camera or microphone access. Displaying a feed neither authorizes robot movement nor establishes robot performance.
 
 SSH access to A2000 has been restored. Earlier services on ports 8080 and 8769 were unavailable; existing `scene.live_objects` and `gaze.live --sidecam --arm` processes already own the cameras and are left running. The new `tools/feed-snapshot-bridge.py` reads their existing image files instead of opening cameras or importing hardware code. It listens only on remote `127.0.0.1:8771`, forwarded to local `127.0.0.1:18771`.
 
@@ -54,7 +54,7 @@ These are review targets for the integration, not a record of completed checks:
 - Verify that the Animations page renders and completes a browser-only reach, while Live views retains its independent camera connections.
 - Check that routine status remains disconnected without an actual service and does not call unavailable Python or sponsor endpoints.
 - Verify the restored run ID, timestamp, six-fixation counts, equal 100% scores, zero-point difference, and explicit synthetic scope; test missing or invalid report data.
-- Confirm that image snapshots refresh and custom MJPEG sources display only after an explicit connection, pause off-page and while hidden, clean up on disconnect, and show failure states honestly.
+- Confirm that image snapshots refresh and custom MJPEG sources display when Live views is visible (custom sources require an explicit connection), pause off-page and while hidden, clean up on disconnect, and show failure states honestly.
 - Check workspace and outward-facing glasses through the private snapshot bridge; wrist should display only fresh alignment snapshots and show unavailable when stale. Validate `/status`, the 10-second freshness cutoff, and unavailable-source behavior. Validate any authorized HTTPS relay separately for Vercel.
 - Check keyboard access, visible focus, descriptive controls, iris pause/resume, reduced motion, and narrow screens.
 - Review the import for credentials, raw logs, camera images, hardware-control files, and copied compiled vendor code before publishing; the read-only bridge source is intentional.
@@ -82,3 +82,10 @@ Before the animation restoration and wrist alignment route, the camera-only revi
 - The private workspace and outward-facing glasses image feeds display successfully in the browser. The stale wrist source returns HTTP 503 and is not included in the preset.
 
 Vercel reported a successful deployment of `086c814`, and the production homepage and evaluation page were verified in the browser, including the restored metrics and full report. The authorized public relay returns JPEG and PNG responses for the workspace and glasses. Public status, wrist, and control routes are denied. Nine additional Python tests pass for the proxy boundaries and expiry. The website exposes an explicit **Connect live feeds** action and disables that session at its published expiry; HTTP presets are hidden on HTTPS pages.
+
+
+## Public relay recovery — October 18, 2026
+
+At 11:01 AM EDT the quick tunnel lost network connectivity, then repeatedly reported `Unauthorized: Tunnel not found`. Its hostname returned NXDOMAIN even while the local relay processes were still running. The private workspace and glasses sources remained fresh and returned HTTP 200. The public relay was replaced using HTTP/2 transport; its original 12:12 PM EDT deadline was preserved.
+
+The A2000 camera inventory currently does not contain the wrist USB device (PID 9221). The wrist route remains configured for fresh pickup-alignment snapshots, but it cannot supply new images without that camera connected. No robot process was restarted or camera ownership changed.

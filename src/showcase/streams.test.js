@@ -287,19 +287,20 @@ test('URL validation rejects credentials, non-HTTP schemes, and HTTP on HTTPS pa
   assert.equal(parseStreamUrl('http://127.0.0.1:18769/side_raw.jpg', 'http:').snapshot, true);
 });
 
-function installDom(t, { relay = null, protocol = 'http:' } = {}) {
+function installDom(t, { relay = null, protocol = 'http:', page = 'home', hidden = false, values = {} } = {}) {
   const scheduler = new Scheduler();
   const nodes = {};
   const keys = ['wrist', 'overhead', 'user'];
   for (const key of keys) {
     nodes['feed-' + key] = new FakeImage();
-    for (const prefix of ['source-', 'status-', 'empty-']) nodes[prefix + key] = new FakeElement();
+    for (const prefix of ['source-', 'status-', 'empty-', 'empty-message-']) nodes[prefix + key] = new FakeElement();
+    nodes['source-' + key].value = values[key] || '';
   }
   for (const id of ['stream-help', 'stream-form', 'disconnect-streams', 'local-a2000', 'activity', 'connect-live-feeds', 'public-relay-hint']) nodes[id] = new FakeElement();
   const dot = new FakeElement();
   const document = new EventTarget();
-  document.body = { dataset: { page: 'home' } };
-  document.hidden = false;
+  document.body = { dataset: { page } };
+  document.hidden = hidden;
   document.getElementById = id => nodes[id];
   document.querySelector = selector => selector === '.connection .dot' ? dot : null;
   const window = new EventTarget();
@@ -367,7 +368,7 @@ test('page and document visibility pause/resume feeds; disconnect and cleanup pr
 
 const publicRelay = { baseUrl: 'https://camera-session.trycloudflare.com', expiresAt: new Date(11000).toISOString() };
 
-test('public HTTPS preset waits for a click, hides the local preset, and disconnect clears frames', t => {
+test('public HTTPS feeds wait for the studio view, auto-connect there, and disconnect clears frames', t => {
   const { scheduler, document, nodes, window, cleanup } = installDom(t, { relay: publicRelay, protocol: 'https:' });
   assert.equal(nodes['connect-live-feeds'].hidden, false);
   assert.equal(nodes['connect-live-feeds'].disabled, false);
@@ -379,7 +380,6 @@ test('public HTTPS preset waits for a click, hides the local preset, and disconn
   assert.equal(nodes['source-overhead'].value, '', 'The hidden HTTP preset cannot fill hosted URL inputs');
   document.body.dataset.page = 'studio';
   window.dispatchEvent(new Event('look:page'));
-  nodes['connect-live-feeds'].dispatchEvent(new Event('click'));
   assert.equal(nodes['source-overhead'].value, publicRelay.baseUrl + '/side.jpg');
   assert.equal(nodes['source-user'].value, publicRelay.baseUrl + '/front.png');
   assert.equal(nodes['source-wrist'].value, publicRelay.baseUrl + '/wrist.jpg');
@@ -390,6 +390,7 @@ test('public HTTPS preset waits for a click, hides the local preset, and disconn
   nodes['feed-overhead'].load();
   nodes['feed-user'].load();
   assert.equal(nodes.activity.textContent, '3 feeds connected');
+  assert.equal(nodes['connect-live-feeds'].textContent, 'Reconnect live feeds');
   nodes['disconnect-streams'].dispatchEvent(new Event('click'));
   assert.equal(nodes['feed-overhead'].src, '');
   assert.equal(nodes['feed-user'].src, '');
@@ -404,7 +405,6 @@ test('public session expiry clears its frames, disables reconnect, and rejects p
   const { scheduler, document, window, nodes } = installDom(t, { relay: publicRelay, protocol: 'https:' });
   document.body.dataset.page = 'studio';
   window.dispatchEvent(new Event('look:page'));
-  nodes['connect-live-feeds'].dispatchEvent(new Event('click'));
   nodes['feed-overhead'].load();
   nodes['feed-user'].load();
   nodes['feed-wrist'].load();
@@ -430,7 +430,6 @@ test('expiry on resume blocks stale public feeds even when its background timer 
   const { scheduler, document, window, nodes } = installDom(t, { relay: publicRelay, protocol: 'https:' });
   document.body.dataset.page = 'studio';
   window.dispatchEvent(new Event('look:page'));
-  nodes['connect-live-feeds'].dispatchEvent(new Event('click'));
   document.hidden = true;
   document.dispatchEvent(new Event('visibilitychange'));
   const requests = nodes['feed-overhead'].requests.length;
@@ -452,14 +451,16 @@ test('public lease expiry preserves unrelated custom camera connections', t => {
   nodes['stream-form'].dispatchEvent(new Event('submit', { cancelable: true }));
   nodes['feed-wrist'].load();
   nodes['feed-overhead'].load();
+  const customRequests = nodes['feed-wrist'].requests.length;
   scheduler.advance(10000);
   assert.equal(nodes['feed-overhead'].src, '');
   assert.equal(nodes['feed-wrist'].src, 'https://private-camera.example/wrist');
   assert.equal(nodes['status-wrist'].textContent, 'Connected');
   assert.equal(nodes.activity.textContent, '1 feed connected');
   nodes['source-overhead'].value = '';
+  nodes['source-user'].value = '';
   nodes['stream-form'].dispatchEvent(new Event('submit', { cancelable: true }));
-  assert.equal(nodes['feed-wrist'].requests.length, 2, 'Custom sources remain usable after the published lease');
+  assert.equal(nodes['feed-wrist'].requests.length, customRequests + 1, 'Custom sources remain usable after the published lease');
 });
 
 test('missing or invalid relay config makes no public connection available', t => {
@@ -468,5 +469,108 @@ test('missing or invalid relay config makes no public connection available', t =
   assert.equal(nodes['public-relay-hint'].hidden, true);
   nodes['connect-live-feeds'].dispatchEvent(new Event('click'));
   assert.equal(nodes['feed-overhead'].requests.length, 0);
+  assert.equal(scheduler.pending.size, 0);
+});
+
+test('a direct visible studio visit starts public feeds once without a button click', t => {
+  const { nodes, document, window } = installDom(t, { relay: publicRelay, protocol: 'https:', page: 'studio' });
+  for (const key of ['wrist', 'overhead', 'user']) {
+    assert.equal(nodes['feed-' + key].requests.length, 1);
+    assert.equal(nodes['status-' + key].textContent, 'Connecting');
+  }
+  assert.match(nodes['empty-message-wrist'].textContent, /Waiting for a fresh wrist alignment/);
+  assert.equal(nodes['empty-message-overhead'].textContent, 'Connecting to the camera…');
+  window.dispatchEvent(new Event('look:page'));
+  window.dispatchEvent(new Event('pageshow'));
+  document.dispatchEvent(new Event('visibilitychange'));
+  assert.equal(nodes['feed-overhead'].requests.length, 1, 'Repeated visibility events must not create extra connections');
+  nodes['feed-wrist'].fail();
+  nodes['feed-overhead'].fail();
+  assert.equal(nodes['status-wrist'].textContent, 'Retrying');
+  assert.match(nodes['empty-message-wrist'].textContent, /No fresh wrist alignment frame yet/);
+  assert.equal(nodes['status-overhead'].textContent, 'Retrying');
+  assert.match(nodes['empty-message-overhead'].textContent, /Camera image unavailable.*Retrying/);
+  nodes['feed-overhead'].load(); // The failed request has no surviving callback.
+  assert.equal(nodes['empty-overhead'].hidden, false);
+});
+
+test('a hidden direct visit and pagehide do not start feeds until the studio is visible again', t => {
+  const { nodes, document, window } = installDom(t, { relay: publicRelay, protocol: 'https:', page: 'studio', hidden: true });
+  assert.equal(nodes['feed-overhead'].requests.length, 0);
+  window.dispatchEvent(new Event('pagehide'));
+  document.hidden = false;
+  document.dispatchEvent(new Event('visibilitychange'));
+  assert.equal(nodes['feed-overhead'].requests.length, 0, 'A pagehide remains suspended until pageshow');
+  window.dispatchEvent(new Event('pageshow'));
+  assert.equal(nodes['feed-overhead'].requests.length, 1);
+  document.body.dataset.page = 'animations';
+  window.dispatchEvent(new Event('look:page'));
+  assert.equal(nodes['feed-overhead'].src, '');
+  assert.equal(nodes['status-overhead'].textContent, 'Paused');
+  document.body.dataset.page = 'studio';
+  window.dispatchEvent(new Event('look:page'));
+  assert.equal(nodes['feed-overhead'].requests.length, 2, 'Returning resumes the original connection');
+});
+
+test('manual Disconnect persists across navigation and visibility until explicit Reconnect', t => {
+  const { nodes, document, window } = installDom(t, { relay: publicRelay, protocol: 'https:', page: 'studio' });
+  nodes['disconnect-streams'].dispatchEvent(new Event('click'));
+  assert.equal(nodes['status-overhead'].textContent, 'Disconnected');
+  assert.equal(nodes['empty-message-overhead'].textContent, 'Feed disconnected.');
+  document.body.dataset.page = 'home';
+  window.dispatchEvent(new Event('look:page'));
+  document.hidden = true;
+  document.dispatchEvent(new Event('visibilitychange'));
+  window.dispatchEvent(new Event('pagehide'));
+  document.body.dataset.page = 'studio';
+  window.dispatchEvent(new Event('look:page'));
+  document.hidden = false;
+  document.dispatchEvent(new Event('visibilitychange'));
+  window.dispatchEvent(new Event('pageshow'));
+  assert.equal(nodes['feed-overhead'].requests.length, 1);
+  assert.equal(nodes['feed-overhead'].src, '');
+  nodes['connect-live-feeds'].dispatchEvent(new Event('click'));
+  assert.equal(nodes['feed-overhead'].requests.length, 2);
+  assert.equal(nodes['status-overhead'].textContent, 'Connecting');
+});
+
+test('automatic and explicit public reconnect preserve custom inputs and active custom sources', t => {
+  const custom = 'https://private-camera.example/wrist';
+  const { nodes, window } = installDom(t, { relay: publicRelay, protocol: 'https:', page: 'studio', values: { wrist: custom } });
+  assert.equal(nodes['source-wrist'].value, custom);
+  assert.equal(nodes['feed-wrist'].requests.length, 0, 'An unsubmitted custom URL must not be connected automatically');
+  assert.equal(nodes['feed-overhead'].requests.length, 1);
+  nodes['stream-form'].dispatchEvent(new Event('submit', { cancelable: true }));
+  assert.equal(nodes['feed-wrist'].src, custom);
+  nodes['source-wrist'].value = '';
+  nodes['connect-live-feeds'].dispatchEvent(new Event('click'));
+  assert.equal(nodes['source-wrist'].value, '', 'A public preset must not overwrite a custom input edit');
+  assert.equal(nodes['feed-wrist'].requests.length, 1, 'The active custom source remains untouched even if its form field was edited');
+  assert.equal(nodes['feed-wrist'].src, custom);
+  window.dispatchEvent(new Event('look:page'));
+  assert.equal(nodes['feed-wrist'].requests.length, 1);
+});
+
+test('an already expired lease and expiry before first visibility never auto-connect', t => {
+  const expired = { ...publicRelay, expiresAt: new Date(500).toISOString() };
+  const { nodes, document, window } = installDom(t, { relay: expired, protocol: 'https:', page: 'studio' });
+  assert.equal(nodes['feed-overhead'].requests.length, 0);
+  assert.equal(nodes['connect-live-feeds'].disabled, true);
+  assert.match(nodes['stream-help'].textContent, /Live session ended/);
+  document.body.dataset.page = 'home';
+  window.dispatchEvent(new Event('look:page'));
+  document.body.dataset.page = 'studio';
+  window.dispatchEvent(new Event('look:page'));
+  nodes['connect-live-feeds'].dispatchEvent(new Event('click'));
+  assert.equal(nodes['feed-overhead'].requests.length, 0);
+});
+
+test('a hidden session that expires before becoming visible stays disconnected', t => {
+  const { nodes, document, scheduler } = installDom(t, { relay: publicRelay, protocol: 'https:', page: 'studio', hidden: true });
+  scheduler.time = 12000;
+  document.hidden = false;
+  document.dispatchEvent(new Event('visibilitychange'));
+  assert.equal(nodes['feed-overhead'].requests.length, 0);
+  assert.equal(nodes['connect-live-feeds'].disabled, true);
   assert.equal(scheduler.pending.size, 0);
 });

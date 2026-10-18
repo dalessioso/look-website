@@ -120,7 +120,9 @@ def main():
     isolated_config.close()
     tunnel = subprocess.Popen([
         cloudflared, "tunnel", "--config", isolated_config.name, "--no-autoupdate", "--url", f"http://127.0.0.1:{args.port}",
-        "--metrics", "127.0.0.1:0", "--loglevel", "info",
+        # Use TCP transport on the booth network, which dropped the UDP/QUIC
+        # connection during a network change. TLS verification stays enabled.
+        "--protocol", "http2", "--metrics", "127.0.0.1:0", "--loglevel", "info",
     ], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
     def stop_tunnel():
         if tunnel.poll() is None:
