@@ -10,29 +10,50 @@ from pathlib import Path
 from urllib.parse import urlsplit
 
 FILES = {
-    "/side.jpg": ("side_check.jpg", "image/jpeg"),
-    "/front.png": ("front_now.png", "image/png"),
-    "/wrist.jpg": ("wrist_check.jpg", "image/jpeg"),
+    "/side.jpg": (("side_check.jpg",), "image/jpeg"),
+    "/front.png": (("front_now.png",), "image/png"),
+    # The running robot owns the wrist camera during pickup alignment and
+    # writes up to three snapshots. Read those files without opening a camera.
+    "/wrist.jpg": (("wrist_align0.jpg", "wrist_align1.jpg", "wrist_align2.jpg", "wrist_check.jpg"), "image/jpeg"),
 }
 MAX_AGE = 10
 MAX_BYTES = 10 * 1024 * 1024
 
 
-def read_frame(root, name):
+def read_frame(root, name, now=None):
     path = root / name
     before = path.stat()
-    age = time.time() - before.st_mtime
+    age = (time.time() if now is None else now) - before.st_mtime
     if age < -2 or age > MAX_AGE or before.st_size > MAX_BYTES:
         raise ValueError("No fresh frame available")
-    data = path.read_bytes()
+    with path.open("rb") as stream:
+        data = stream.read(MAX_BYTES + 1)
     after = path.stat()
-    if (before.st_size, before.st_mtime_ns) != (after.st_size, after.st_mtime_ns):
+    if len(data) > MAX_BYTES or len(data) != before.st_size or (
+        before.st_size, before.st_mtime_ns
+    ) != (after.st_size, after.st_mtime_ns):
         raise ValueError("Frame is being updated")
     if name.endswith(".jpg") and not (data.startswith(b"\xff\xd8") and data.endswith(b"\xff\xd9")):
         raise ValueError("Frame is being updated")
     if name.endswith(".png") and not (data.startswith(b"\x89PNG\r\n\x1a\n") and data.endswith(b"IEND\xaeB`\x82")):
         raise ValueError("Frame is being updated")
     return data, age
+
+
+def read_source(root, names):
+    """Return the newest valid, fresh frame from an explicit bounded allowlist."""
+    newest = None
+    now = time.time()
+    for name in names:
+        try:
+            candidate = read_frame(root, name, now=now)
+        except (OSError, ValueError):
+            continue
+        if newest is None or candidate[1] < newest[1]:
+            newest = candidate
+    if newest is None:
+        raise ValueError("No fresh frame available")
+    return newest
 
 
 def handler_for(root):
@@ -51,17 +72,17 @@ def handler_for(root):
             code, content_type = 200, "application/json"
             if route == "/status":
                 feeds = {}
-                for endpoint, (name, _) in FILES.items():
+                for endpoint, (names, _) in FILES.items():
                     try:
-                        _, age = read_frame(root, name)
+                        _, age = read_source(root, names)
                         feeds[endpoint] = {"available": True, "age_seconds": round(age, 2)}
                     except (OSError, ValueError):
                         feeds[endpoint] = {"available": False}
                 data = json.dumps({"read_only": True, "max_frame_age_seconds": MAX_AGE, "feeds": feeds}).encode()
             elif route in FILES:
-                name, content_type = FILES[route]
+                names, content_type = FILES[route]
                 try:
-                    data, _ = read_frame(root, name)
+                    data, _ = read_source(root, names)
                 except (OSError, ValueError):
                     code, content_type, data = 503, "application/json", b'{"error":"No fresh frame available"}'
             else:

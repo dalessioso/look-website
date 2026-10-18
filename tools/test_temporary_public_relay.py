@@ -96,6 +96,7 @@ class RelayTests(unittest.TestCase):
     def test_get_only_fixed_image_upstream_and_ignores_incoming_query(self):
         for route, data, content_type in (
             ("/side.jpg", JPEG, "image/jpeg"),
+            ("/wrist.jpg", JPEG, "image/jpeg"),
             ("/front.png", PNG, "image/png"),
         ):
             with self.subTest(route=route):
@@ -120,7 +121,7 @@ class RelayTests(unittest.TestCase):
 
     def test_unknown_private_and_traversal_paths_never_request_upstream(self):
         opener = FakeOpener()
-        paths = ("/", "/status", "/wrist.jpg", "/side_raw.jpg", "/control",
+        paths = ("/", "/status", "/wrist_align0.jpg", "/side_raw.jpg", "/control",
                  "/../side.jpg", "/%2e%2e/side.jpg", "/%73ide.jpg", "/side.jpg/extra",
                  "http://127.0.0.1:12345/side.jpg")
         with running_server(self.handler(opener)) as port:

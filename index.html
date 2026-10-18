@@ -20,6 +20,7 @@
 <nav class="nav" aria-label="Main navigation">
 <a href="#home" data-page="home">Home</a>
 <a href="#studio" data-page="studio">Live views</a>
+<a href="#animations" data-page="animations">Animations</a>
 <a href="#routines" data-page="routines">Routines</a>
 <a href="#evaluation" data-page="evaluation">Evaluation</a>
 </nav>
@@ -41,6 +42,7 @@
 <div class="hero-bottom">
 <a class="hero-action" href="#studio">Open live views <span aria-hidden="true">↗</span>
 </a>
+<a class="hero-animation-link" href="#animations">Explore the arm animations <span aria-hidden="true">↗</span></a>
 <button id="toggle-iris-motion" class="iris-motion" type="button" aria-label="Pause eye animation">Pause animation</button>
 </div>
 <section class="home-story" id="technology" aria-labelledby="technology-title">
@@ -73,7 +75,7 @@
 <div class="page-title">
 <div>
 <h1 id="studio-title">Your workspace, live.</h1>
-<p>View the workspace and the scene through the glasses. Add a wrist feed when available.</p>
+<p>Connect the workspace, glasses, and wrist alignment view to follow the arm’s perspective during pickup.</p>
 </div>
 </div>
 <section class="panel feeds-panel">
@@ -90,7 +92,7 @@
 <div class="streams">
 <section class="stream">
 <h3>Wrist camera</h3>
-<p class="stream-caption">Optional gripper view; no fresh source configured</p>
+<p class="stream-caption">Wrist alignment view, available during pickup</p>
 <div class="feed">
 <div class="feed-empty" id="empty-wrist">
 <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1">
@@ -171,6 +173,15 @@
 <div class="footer">
 <span>Camera streams display from sources you connect and are not recorded here.</span>
 </div>
+</section>
+<section class="page workspace animations-page" id="page-animations" aria-labelledby="animations-title">
+<div class="page-title">
+<div>
+<h1 id="animations-title">See the arm in motion.</h1>
+<p>Explore a 3D desk model and the shuttle illustration, then return to the <a href="#studio">live camera views</a>.</p>
+</div>
+</div>
+<div id="animations-root"><p class="note">Loading the arm animations…</p></div>
 </section>
 <section class="page workspace" id="page-routines" aria-labelledby="routine-title">
 <div class="page-title">

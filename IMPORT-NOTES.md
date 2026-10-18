@@ -12,9 +12,9 @@ The original import incorporated the website frontend, excluding evidence logs, 
 
 ## Integration
 
-`index.html` contains the current page structure, `src/showcase/showcase.css` defines its dark visual system, and the modules in `src/showcase/` handle navigation and browser interaction. The public routes are `/`, `/#studio`, `/#routines`, and `/#evaluation`.
+`index.html` contains the current page structure, `src/showcase/showcase.css` defines its dark visual system, and the modules in `src/showcase/` handle navigation and browser interaction. The public routes are `/`, `/#studio`, `/#animations`, `/#routines`, and `/#evaluation`.
 
-The current homepage's object tabs and 3D arm preview have been removed. `/#studio` keeps its URL but is named **Live views** and contains read-only camera panels and routine-context status. Its 3D arm, reach-confirmation controls, and simulated activity log have also been removed. The animated iris and its pause control remain.
+The restored **Animations** page contains the SO-101 3D object-selection, confirmation, and delivery simulation. `/#studio` keeps its URL and remains **Live views**, with read-only camera panels. The animated iris and its pause control remain. Animation controls have no robot API connection.
 
 The previous React application has its own `legacy.html` entry for `/demo`, `/day`, `/classic`, and `/style-guide`. Its object demonstration still uses the editable `src/RobotScene.tsx` source and installed dependencies. Its linen and sage design, including the liquid-glass button and technical shuttle illustration, remains historical reference material. `STYLE-GUIDE.md` documents that legacy system rather than the imported dark design.
 
@@ -26,9 +26,11 @@ Visitors must explicitly connect supplied source URLs. `.jpg`, `.jpeg`, `.png`, 
 
 SSH access to A2000 has been restored. Earlier services on ports 8080 and 8769 were unavailable; existing `scene.live_objects` and `gaze.live --sidecam --arm` processes already own the cameras and are left running. The new `tools/feed-snapshot-bridge.py` reads their existing image files instead of opening cameras or importing hardware code. It listens only on remote `127.0.0.1:8771`, forwarded to local `127.0.0.1:18771`.
 
-The bridge allowlists `/side.jpg` from `side_check.jpg`, `/front.png` from `front_now.png`, and `/wrist.jpg` from `wrist_check.jpg`, plus `/status` for availability. Frames must be no older than 10 seconds; stale or unavailable image routes return HTTP 503. Workspace and outward-facing glasses feeds were displayed successfully in the browser at 640 × 480 and 240 px source width respectively. The wrist image was stale and correctly returned 503. The local website preset sets only `http://127.0.0.1:18771/side.jpg` and `http://127.0.0.1:18771/front.png`, leaving wrist blank.
+The bridge allowlists `/side.jpg` from `side_check.jpg`, `/front.png` from `front_now.png`, and `/wrist.jpg` from the newest valid image among `wrist_align0.jpg`, `wrist_align1.jpg`, `wrist_align2.jpg`, and `wrist_check.jpg`. `/status` reports availability without file paths. Frames must be no older than ten seconds; stale or unavailable routes return HTTP 503. Both local and public presets include all three routes.
 
-The bridge source is included for reproducibility, with no raw logs, camera images, credentials, or hardware imports. [README.md](README.md#camera-sources) provides foreground bridge and SSH-forward examples using the configurable `A2000` alias. The owner subsequently authorized public sharing of the workspace and outward glasses feeds. `tools/temporary-public-relay.py` exposes only those two images through a two-hour HTTPS quick tunnel, with its URL and expiry published in `src/showcase/data/public-relay.json`. The private bridge, wrist source, status, and robot APIs remain outside that public allowlist. Credentials must not be placed in URLs, and a relay must not expose robot control.
+The running `arm.wrist_align` code opens the wrist camera during pickup alignment and releases it afterward. Its existing annotated alignment snapshots are the source for the wrist panel. There is no continuous wrist capture while idle, and the website does not open a second camera owner or change robot-control code.
+
+The bridge source is included without raw logs, camera images, credentials, or hardware imports. [README.md](README.md#camera-sources) provides setup examples. The authorized temporary HTTPS relay exposes only the three image routes, with its URL and expiry in `src/showcase/data/public-relay.json`. Status, source filenames, and robot APIs remain private. The original session deadline remains 12:12 PM EDT on October 18, 2026.
 
 ## Restored historical evaluation
 
@@ -49,11 +51,11 @@ These are review targets for the integration, not a record of completed checks:
 - Build both HTML entries from source and installed dependencies.
 - Open the showcase and each hash route directly, then exercise browser back and forward navigation.
 - Open `/demo`, `/day`, `/classic`, and `/style-guide` directly in local preview and on Vercel; verify their retained behavior separately from the current showcase.
-- Verify that the home and Live views pages contain no 3D object preview, selection/confirmation controls, or simulated activity log.
+- Verify that the Animations page renders and completes a browser-only reach, while Live views retains its independent camera connections.
 - Check that routine status remains disconnected without an actual service and does not call unavailable Python or sponsor endpoints.
 - Verify the restored run ID, timestamp, six-fixation counts, equal 100% scores, zero-point difference, and explicit synthetic scope; test missing or invalid report data.
 - Confirm that image snapshots refresh and custom MJPEG sources display only after an explicit connection, pause off-page and while hidden, clean up on disconnect, and show failure states honestly.
-- Check workspace and outward-facing glasses through the private snapshot bridge; keep wrist disconnected while its source is stale. Validate `/status`, the 10-second freshness cutoff, and unavailable-source behavior. Validate any authorized HTTPS relay separately for Vercel.
+- Check workspace and outward-facing glasses through the private snapshot bridge; wrist should display only fresh alignment snapshots and show unavailable when stale. Validate `/status`, the 10-second freshness cutoff, and unavailable-source behavior. Validate any authorized HTTPS relay separately for Vercel.
 - Check keyboard access, visible focus, descriptive controls, iris pause/resume, reduced motion, and narrow screens.
 - Review the import for credentials, raw logs, camera images, hardware-control files, and copied compiled vendor code before publishing; the read-only bridge source is intentional.
 
@@ -67,9 +69,9 @@ The checks below were completed for the earlier version with the 3D showcase. Th
 - All four showcase pages fit a 320 px viewport without horizontal page overflow. Iris pause/resume, reduced motion, keyboard object tabs, and explicit stream connect/disconnect were checked.
 - Local direct visits to `/demo`, `/day`, `/style-guide`, and `/classic` load the retained React routes. No browser console errors were observed during these checks.
 
-## Current verification status
+## Prior camera-only verification
 
-The camera-only revision has the following completed checks:
+Before the animation restoration and wrist alignment route, the camera-only revision had these checks:
 
 - `npm test` passes all **20 tests**.
 - `npm run build` passes; the retained legacy Three.js bundle still produces the existing chunk-size warning.

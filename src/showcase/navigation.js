@@ -4,7 +4,7 @@ export function initializeNavigation() {
   disposeNavigation?.();
   const events = new AbortController();
   const listen = (target, type, handler, options = {}) => target?.addEventListener(type, handler, { ...options, signal: events.signal });
-  const validPages = ['home', 'studio', 'routines', 'evaluation'];
+  const validPages = ['home', 'studio', 'animations', 'routines', 'evaluation'];
   const motion = matchMedia('(prefers-reduced-motion: reduce)');
   const canvas = document.getElementById('iris');
   const button = document.getElementById('toggle-iris-motion');

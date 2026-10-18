@@ -211,7 +211,7 @@ export function initializeStreams({ relay = publishedRelay, now = Date.now, setT
   });
   listen(publicButton, 'click', () => {
     if (!published || !checkLease()) return;
-    document.getElementById('source-wrist').value = '';
+    document.getElementById('source-wrist').value = new URL('wrist.jpg', published.base).href;
     document.getElementById('source-overhead').value = new URL('side.jpg', published.base).href;
     document.getElementById('source-user').value = new URL('front.png', published.base).href;
     connectSources();
@@ -223,10 +223,10 @@ export function initializeStreams({ relay = publishedRelay, now = Date.now, setT
   });
   listen(localButton, 'click', () => {
     if (location.protocol === 'https:') return;
-    document.getElementById('source-wrist').value = '';
+    document.getElementById('source-wrist').value = 'http://127.0.0.1:18771/wrist.jpg';
     document.getElementById('source-overhead').value = 'http://127.0.0.1:18771/side.jpg';
     document.getElementById('source-user').value = 'http://127.0.0.1:18771/front.png';
-    help.textContent = 'A2000 workspace and glasses sources filled in. Start the SSH tunnel, then select Connect feeds. The wrist source is unavailable.';
+    help.textContent = 'A2000 camera sources filled in. Start the SSH tunnel, then select Connect feeds. Wrist alignment images are available during pickup.';
   });
   listen(document, 'visibilitychange', pause);
   listen(window, 'look:page', pause);

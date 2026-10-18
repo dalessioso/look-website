@@ -1,6 +1,6 @@
 # Look website
 
-A standalone Vite website for Look with a dark, eye-centered showcase, read-only camera views, and a saved evaluation report. The current homepage and workspace no longer contain the 3D arm demonstration. The earlier React, Base UI, and Motion experience remains available through legacy routes. This repository contains the website frontend and an optional read-only snapshot bridge; it does not run robotics control services.
+A standalone Vite website for Look with a dark, eye-centered showcase, read-only camera views, an interactive 3D arm animation, and a saved evaluation report. The Animations tab contains the simulated object-delivery experience; Live views contains the actual camera images. The earlier React, Base UI, and Motion experience remains available through legacy routes. This repository contains the website frontend and an optional read-only snapshot bridge; it does not run robotics control services.
 
 [Live website](https://look-website-kappa.vercel.app)
 
@@ -28,7 +28,7 @@ npm ci
 npm run dev
 ```
 
-Open `http://127.0.0.1:8780`. Build with `npm run build`; preview the production output with `npm run preview` after stopping the development server. Run `npm test` for the automated checks. The current build and all 20 frontend tests pass; local browser checks are recorded in [IMPORT-NOTES.md](IMPORT-NOTES.md). The production homepage and restored evaluation have also been verified on Vercel.
+Open `http://127.0.0.1:8780`. Build with `npm run build`; preview the production output with `npm run preview` after stopping the development server. Run `npm test` for the automated checks. The current build and all 28 frontend tests pass; local browser checks are recorded in [IMPORT-NOTES.md](IMPORT-NOTES.md). The production homepage and restored evaluation have also been verified on Vercel.
 
 ## Routes
 
@@ -36,6 +36,7 @@ Open `http://127.0.0.1:8780`. Build with `npm run build`; preview the production
 | --- | --- |
 | `/` | Current dark, eye-centered showcase and product introduction |
 | `/#studio` | Live views: read-only wrist, overhead, and user-perspective camera panels |
+| `/#animations` | Interactive 3D SO-101 object-delivery animation and retained shuttle illustration |
 | `/#routines` | Routine-context explanation and an empty analysis state when no report is available |
 | `/#evaluation` | Saved historical synthetic intent-prediction evaluation, with its source and limits |
 | `/demo` | Retained linen React object demonstration |
@@ -46,7 +47,7 @@ Open `http://127.0.0.1:8780`. Build with `npm run build`; preview the production
 
 The current showcase uses hash navigation inside `index.html`; the Live views navigation item keeps the `#studio` URL for compatibility. The retained `/demo`, `/day`, `/classic`, and `/style-guide` routes load the React application through the separate `legacy.html` entry. The historical style guide does not define the current dark design.
 
-The current workspace has no object-selection, reach-confirmation, or simulated activity controls. Camera display does not command physical hardware or perform gaze, blink, or speech recognition. Routine and evaluation views do not run Chalk, Factory, or Python analysis in this deployment. The site does not automatically request browser camera or microphone access.
+The Animations page has object-selection and confirmation controls for a browser-only simulation. Live views remains read-only. Camera display does not command physical hardware or perform gaze, blink, or speech recognition. Routine and evaluation views do not run Chalk, Factory, or Python analysis in this deployment. The site does not automatically request browser camera or microphone access.
 
 ## Camera sources
 
@@ -60,9 +61,9 @@ The standard-library-only [snapshot bridge](tools/feed-snapshot-bridge.py) reads
 | --- | --- | --- | --- |
 | Overhead workspace | `side_check.jpg` | `http://127.0.0.1:18771/side.jpg` | Live, displayed at 640 × 480 |
 | Outward-facing glasses | `front_now.png` | `http://127.0.0.1:18771/front.png` | Live, displayed at 240 px source width |
-| Wrist camera | `wrist_check.jpg` | `http://127.0.0.1:18771/wrist.jpg` | Stale; returns HTTP 503 and stays disconnected |
+| Wrist alignment | Newest valid `wrist_align0.jpg`, `wrist_align1.jpg`, `wrist_align2.jpg`, or `wrist_check.jpg` | `http://127.0.0.1:18771/wrist.jpg` | Produced during pickup alignment; unavailable while idle or stale |
 
-The website's local preset fills only the workspace and glasses URLs, leaving wrist blank; choose **Connect feeds** to start displaying them. The bridge serves only the three allowlisted image routes and `/status`, requires frames no older than **10 seconds**, and returns HTTP 503 when a frame is stale or unavailable. `/status` reports current availability without exposing source paths. A feed that worked during verification can become unavailable if its upstream process stops updating images.
+The website's local preset fills all three camera URLs; choose **Connect feeds** to start displaying them. The bridge serves only the three allowlisted image routes and `/status`, requires frames no older than **10 seconds**, and returns HTTP 503 when a frame is stale or unavailable. `/status` reports current availability without exposing source paths. A feed that worked during verification can become unavailable if its upstream process stops updating images.
 
 For a fresh setup, replace the example remote paths with the bridge location and existing snapshot directory. Start the bridge in the foreground in one terminal; skip this step if it is already running:
 
@@ -78,11 +79,11 @@ ssh -N -o ExitOnForwardFailure=yes -L 127.0.0.1:18771:127.0.0.1:8771 A2000
 
 `A2000` is the user's configured SSH alias; no account identity or credentials are embedded in these examples. Stop the bridge and forward with **Ctrl+C** in their respective terminals. The bridge contains no hardware imports, camera-opening code, or robot-control calls. Only its reusable source is included in this repository; raw logs and camera images are not.
 
-These loopback addresses are private to the machine running the tunnel. The HTTPS Vercel site needs browser-reachable **HTTPS camera relay URLs**. The owner has enabled a temporary public relay for the workspace and outward-facing glasses. On the hosted site, choose **Connect live feeds**; local HTTP presets are hidden there. The published session expires at **12:12 PM EDT on October 18, 2026**. Cameras connect only after a click, and public connections are cleared at expiry. Keep credentials out of URLs and frontend code, and expose only camera images through any relay, never robot-control endpoints. The production website is deployed and verified; public camera-feed availability is separate.
+These loopback addresses are private to the machine running the tunnel. The HTTPS Vercel site needs browser-reachable **HTTPS camera relay URLs**. The owner has enabled a temporary public relay for the workspace, outward-facing glasses, and wrist alignment snapshots. On the hosted site, choose **Connect live feeds**; local HTTP presets are hidden there. The published session expires at **12:12 PM EDT on October 18, 2026**. Cameras connect only after a click, and public connections are cleared at expiry. Keep credentials out of URLs and frontend code, and expose only camera images through any relay, never robot-control endpoints. The production website is deployed and verified; public camera-feed availability is separate.
 
 ## Temporary public relay
 
-The relay publishes only `/side.jpg` and `/front.png` through a Cloudflare HTTPS quick tunnel. `/status`, wrist images, other local files, and control endpoints are not exposed. Requests use a fixed loopback upstream, reject redirects and invalid images, and return `no-store`. The private bridge still rejects frames older than ten seconds. The lease is enforced on the server even if a visitor changes their browser clock; the tunnel process terminates at the two-hour limit.
+The relay publishes only `/side.jpg`, `/front.png`, and `/wrist.jpg` through a Cloudflare HTTPS quick tunnel. `/status`, individual source filenames, other local files, and control endpoints are not exposed. The wrist camera is owned by the running pickup alignment code; the bridge reads its snapshots without opening a competing camera capture. Wrist frames become unavailable ten seconds after their last update. Requests use a fixed loopback upstream, reject redirects and invalid images, and return `no-store`. The private bridge still rejects frames older than ten seconds. The lease is enforced on the server even if a visitor changes their browser clock; the tunnel process terminates at the two-hour limit.
 
 The SSH forward and snapshot bridge must stay running on the Mac. With `cloudflared` installed, an explicitly authorized new session can be started in the foreground:
 
@@ -112,7 +113,7 @@ The repository is connected to Vercel. Push changes to a feature branch on GitHu
 
 The current visual direction comes from the website frontend in [THEschildkrote/armtracking at commit `3dc2aff4ed5e6c858199e6da2ec9d191fae93d1d`](https://github.com/THEschildkrote/armtracking/tree/3dc2aff4ed5e6c858199e6da2ec9d191fae93d1d), under `sponsors/showcase`. See [IMPORT-NOTES.md](IMPORT-NOTES.md) for the integration boundary and validation targets.
 
-Edit the page structure and content in `index.html`, the current dark visual system in `src/showcase/showcase.css`, and the browser modules in `src/showcase/`. Those modules handle showcase navigation, the animated iris, camera connections, and report presentation. Keep the current workspace read-only; the 3D object preview and confirmation flow belong only to the retained legacy experience.
+Edit the page structure and content in `index.html`, the current dark visual system in `src/showcase/showcase.css`, and the browser modules in `src/showcase/`. Those modules handle showcase navigation, the animated iris, browser-only 3D animation, camera connections, and report presentation. Keep Live views read-only and animation controls separate from physical hardware.
 
 ## Archived linen design system
 

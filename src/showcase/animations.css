@@ -1,0 +1,28 @@
+/* Existing scene artwork sits in the current dark showcase shell. */
+.animations-page { max-width:1120px; }
+.animations-page .page-title a { color:#c7d9f0; text-decoration:underline; text-underline-offset:4px; }
+.animation-panel { padding:24px; }
+.animation-scenarios,.animation-objects { display:flex; gap:8px; flex-wrap:wrap; }
+.animation-scenarios { padding-bottom:20px; margin-bottom:20px; border-bottom:1px solid var(--line); }
+.animation-objects { margin:0 0 20px; }
+.animation-scenarios button,.animation-objects button { font-size:14px; padding:10px 17px; }
+.animation-scenarios button[aria-pressed=true],.animation-objects button[aria-pressed=true] { background:#c9d7ed; color:#131a27; border-color:#c9d7ed; }
+.animation-panel .robot-scene-viewport { max-height:570px; aspect-ratio:16/10; }
+.animation-panel .robot-scene figcaption { font-size:12px; }
+.animation-panel .space-scene { max-width:850px; margin:auto; }
+.animation-panel .space-scene-stage { background:radial-gradient(ellipse at 48% 35%,#f1eee6 10%,#e8e4d9 100%); }
+.animation-panel .space-scene-controls { font-size:12px; }
+.animation-panel .space-scene-controls button:hover:not(:disabled) { color:var(--ink); background:rgba(255,255,255,.08); }
+.animation-actions { display:flex; align-items:center; justify-content:space-between; gap:20px; margin-top:22px; }
+.animation-actions p { margin:0; max-width:420px; color:#ced8e8; font-size:15px; line-height:1.6; }
+.animation-actions>div { display:flex; gap:8px; flex-shrink:0; }
+.animation-actions button { font-size:14px; }
+.animation-note { color:#91a2ba; font-size:13px; line-height:1.8; margin:23px 0 0; padding-top:19px; border-top:1px solid var(--line); }
+@media(max-width:680px) {
+  .animation-panel { padding:18px; }
+  .animation-actions { align-items:flex-start; flex-direction:column; gap:14px; }
+  .animation-actions>div { flex-wrap:wrap; }
+  .animation-panel .robot-scene-viewport { aspect-ratio:4/3; }
+  .animation-scenarios button,.animation-objects button { font-size:12px; padding:10px 13px; }
+  .animation-panel .robot-scene figcaption { font-size:10px; }
+}

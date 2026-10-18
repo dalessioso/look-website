@@ -1,4 +1,4 @@
-"""Publish two read-only camera snapshots through a bounded Cloudflare tunnel.
+"""Publish three read-only camera snapshots through a bounded Cloudflare tunnel.
 
 The upstream is a local SSH forward, never a camera device or robot API.
 """
@@ -10,6 +10,7 @@ import json
 from pathlib import Path
 import re
 import shutil
+import signal
 import subprocess
 import threading
 import tempfile
@@ -17,7 +18,7 @@ import time
 import urllib.error
 import urllib.request
 
-ROUTES = {"/side.jpg": "image/jpeg", "/front.png": "image/png"}
+ROUTES = {"/side.jpg": "image/jpeg", "/front.png": "image/png", "/wrist.jpg": "image/jpeg"}
 MAX_BYTES = 10 * 1024 * 1024
 
 
@@ -133,6 +134,10 @@ def main():
     timer.start()
     print(f"Public camera lease expires at {expiry}", flush=True)
     published = False
+    # A normal process stop must also close this run's owned tunnel.
+    def interrupt(_signum, _frame):
+        raise KeyboardInterrupt
+    signal.signal(signal.SIGTERM, interrupt)
     try:
         for line in tunnel.stdout:
             match = re.search(r"https://[a-z0-9-]+\.trycloudflare\.com", line)
@@ -146,6 +151,8 @@ def main():
                 published = True
             elif "Registered tunnel connection" in line or "ERR" in line:
                 print(line.rstrip(), flush=True)
+    except KeyboardInterrupt:
+        pass
     finally:
         timer.cancel()
         stop_tunnel()
