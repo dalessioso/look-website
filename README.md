@@ -2,6 +2,8 @@
 
 A standalone React and TypeScript website for Look, built with Vite, Base UI, Motion, and Three.js. This repository contains the website only; it does not run robotics control services.
 
+[Live website](https://look-website-kappa.vercel.app)
+
 [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/dalessioso/look-website)
 
 ## Work in Codespaces
@@ -43,9 +45,9 @@ The object demonstration does not connect to hardware, eye tracking, a camera, o
 
 ## Deploy on Vercel
 
-Import `dalessioso/look-website` into Vercel and use the repository root (`.`) as **Root Directory**. Select the **Vite** framework preset and **Node.js 24.x**. The install command is `npm ci`, the build command is `npm run build`, and the output directory is `dist`. No deployment environment variables are needed. `vercel.json` provides direct-link support for the site routes.
+For a new deployment, import `dalessioso/look-website` into Vercel and use the repository root (`.`) as **Root Directory**. Select the **Vite** framework preset and **Node.js 24.x**. The install command is `npm ci`, the build command is `npm run build`, and the output directory is `dist`. No deployment environment variables are needed. `vercel.json` provides direct-link support for the site routes.
 
-After the GitHub integration is connected, use `main` as the production branch. Vercel builds branch and pull-request previews and deploys updates to `main` to production. Use its build status and preview to check each change before merging.
+The repository is connected to Vercel. Push changes to a feature branch on GitHub to create a preview, then review it through a pull request. Merging into `main` updates the production website. Check Vercel's build status and preview before merging.
 
 ## Design system
 
