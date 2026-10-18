@@ -1,0 +1,14 @@
+{
+  "name": "Look website",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:24-bookworm",
+  "remoteUser": "node",
+  "postCreateCommand": "npm ci",
+  "waitFor": "postCreateCommand",
+  "forwardPorts": [8780],
+  "portsAttributes": {
+    "8780": {
+      "label": "Look",
+      "onAutoForward": "notify"
+    }
+  }
+}

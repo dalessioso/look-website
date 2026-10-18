@@ -1,0 +1,18 @@
+.ascii-astronaut { width:100%; min-width:0; margin:0; color:var(--ink,#303b34); }
+.ascii-astronaut-stage { container-type:inline-size; position:relative; display:grid; place-items:center; width:100%; min-width:0; padding:30px 0 24px; border-radius:14px; background:var(--soft-sage,#e8ece1); }
+.ascii-astronaut-art { display:block; margin:0; padding:0; font-family:'Courier New',Courier,monospace; font-size:clamp(8px,2.5cqw,14px); font-weight:600; line-height:1.08; letter-spacing:0; tab-size:1; white-space:pre; user-select:none; text-align:left; font-variant-ligatures:none; -webkit-font-smoothing:auto; }
+.ascii-astronaut--space .ascii-astronaut-stage { padding-block:26px 20px; }
+.ascii-astronaut--space .ascii-astronaut-art { font-size:clamp(5.8px,2.15cqw,12px); line-height:1.10; }
+.ascii-astronaut-face { color:var(--sage,#4a6152); }
+.ascii-astronaut-patch { color:var(--sage,#4a6152); font-weight:700; }
+.ascii-astronaut-controls { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-top:7px; color:var(--muted,#656d64); font-size:11px; line-height:1.5; }
+.ascii-astronaut-controls button { display:inline-flex; align-items:center; justify-content:center; gap:8px; min-width:76px; min-height:44px; padding:10px 8px; color:var(--muted,#656d64); border:0; background:transparent; border-radius:6px; font:inherit; cursor:pointer; }
+.ascii-astronaut-controls button:hover { color:var(--ink,#303b34); background:var(--soft-sage,#e8ece1); }
+.ascii-astronaut-controls button:focus-visible { outline:2px solid var(--sage,#4a6152); outline-offset:3px; }
+.ascii-astronaut-controls button>span { display:inline-block; width:12px; font-size:16px; text-align:center; line-height:1; }
+.ascii-astronaut--compact .ascii-astronaut-stage { padding-block:16px; background:transparent; }
+.ascii-astronaut--compact .ascii-astronaut-art { font-size:clamp(8px,4.1cqw,12px); }
+@media(max-width:620px) {
+  .ascii-astronaut-stage { padding-block:25px 18px; border-radius:10px; }
+  .ascii-astronaut-controls { font-size:10px; }
+}
