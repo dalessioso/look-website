@@ -1,6 +1,8 @@
 # Look Website Style Guide
 
-Version 1.6 · October 18, 2026
+Version 1.6 · October 18, 2026 · Archived linen system
+
+> This document preserves the earlier linen and sage React design. It applies to the retained legacy pages and components, including `/demo`, `/day`, and `/style-guide`, loaded through `legacy.html`. It does **not** specify the current dark showcase at `/`, `/#studio`, `/#routines`, or `/#evaluation`. Current page structure is in `index.html`, styles are in `src/showcase/showcase.css`, and behavior is in `src/showcase/`. See [IMPORT-NOTES.md](IMPORT-NOTES.md) for the imported source and integration scope. The two design systems have not been automatically merged; references below to the landing page describe the historical design.
 
 Look uses a minimal linen and sage interface, editorial typography, a technical SVG shuttle illustration, and a visible SO-101 medication-delivery concept. The landing page presents the opportunity for greater agency alongside both the space concept and the tabletop hardware illustration.
 

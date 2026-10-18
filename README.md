@@ -1,6 +1,6 @@
 # Look website
 
-A standalone React and TypeScript website for Look, built with Vite, Base UI, Motion, and Three.js. This repository contains the website only; it does not run robotics control services.
+A standalone Vite website for Look with a dark, eye-centered showcase and an interactive Three.js arm simulation. The earlier React, Base UI, and Motion experience remains available through legacy routes. This repository contains the website frontend only; it does not run robotics control services.
 
 [Live website](https://look-website-kappa.vercel.app)
 
@@ -28,49 +28,52 @@ npm ci
 npm run dev
 ```
 
-Open `http://127.0.0.1:8780`. Build with `npm run build`; preview the production output with `npm run preview` after stopping the development server.
+Open `http://127.0.0.1:8780`. Build with `npm run build`; preview the production output with `npm run preview` after stopping the development server. Run `npm test` to check the browser controller’s confirmation, cancellation, and session-isolation rules.
 
 ## Routes
 
 | Route | Purpose |
 | --- | --- |
-| `/` | Technical shuttle illustration, prominent tabletop medication-delivery concept, object tabs, and technology overview |
-| `/demo` | Button-controlled simulation of selecting and confirming an object |
-| `/demo?object=medicine` | Open a specific object; accepts medicine, mug, water, or phone, with medicine as the default |
-| `/day` | Compatibility alias for the object demonstration |
-| `/style-guide` | Visual reference for the design system |
-| Any other path | Designed recovery screen |
+| `/` | Current dark, eye-centered showcase and product introduction |
+| `/#studio` | Interactive 3D arm demonstration with explicit selection and button confirmation |
+| `/#routines` | Routine-context explanation and an empty analysis state when no report is available |
+| `/#evaluation` | Evaluation-report presentation with an empty state; no invented benchmark results |
+| `/demo` | Retained linen React object demonstration |
+| `/demo?object=medicine` | Legacy object deep link; accepts medicine, mug, water, or phone |
+| `/day` | Compatibility alias for the legacy object demonstration |
+| `/classic` | Earlier linen landing page with the shuttle illustration and liquid-glass button |
+| `/style-guide` | Archived linen design-system reference, including the live liquid-glass button examples |
 
-The object demonstration does not connect to hardware, eye tracking, a camera, or a microphone. Both confirmation paths are explicit button-driven simulations. Phone pickup is labeled a future concept. The video link opens a coming-soon dialog until a real video URL is available.
+The current showcase uses hash navigation inside `index.html`. The retained `/demo`, `/day`, and `/style-guide` routes load the React application through the separate `legacy.html` entry. The historical style guide does not define the current dark design.
+
+The studio controller keeps demonstration state within the current browser tab. Native buttons select and confirm an illustrated reach; they do not perform gaze, blink, or speech recognition and do not command physical hardware. Routine and evaluation views do not run Chalk, Factory, or Python analysis in this deployment. Optional stream URLs are connected only when the visitor supplies them and chooses to connect; the site does not automatically request browser camera or microphone access.
 
 ## Deploy on Vercel
 
-For a new deployment, import `dalessioso/look-website` into Vercel and use the repository root (`.`) as **Root Directory**. Select the **Vite** framework preset and **Node.js 24.x**. The install command is `npm ci`, the build command is `npm run build`, and the output directory is `dist`. No deployment environment variables are needed. `vercel.json` provides direct-link support for the site routes.
+For a new deployment, import `dalessioso/look-website` into Vercel and use the repository root (`.`) as **Root Directory**. Select the **Vite** framework preset and **Node.js 24.x**. The install command is `npm ci`, the build command is `npm run build`, and the output directory is `dist`. No sponsor credentials or backend environment variables are needed for this frontend deployment.
+
+The build includes both the current showcase and the retained React entry. Keep the route handling in `vite.config.ts` and `vercel.json` aligned so direct visits to the legacy routes load `legacy.html`, while showcase navigation uses the URL hash.
 
 The repository is connected to Vercel. Push changes to a feature branch on GitHub to create a preview, then review it through a pull request. Merging into `main` updates the production website. Check Vercel's build status and preview before merging.
 
-## Design system
+## Editing the current showcase
 
-Read [STYLE-GUIDE.md](STYLE-GUIDE.md) and preview `/style-guide`. Shared colors and typography live in `src/styles.css`. `src/Wordmark.tsx` is the shared custom SVG Look wordmark, with bold rounded L and k letterforms and an almond-shaped eye inside each elliptical o. It uses a 132 × 44 viewBox and one `currentColor`, with no separate left-hand icon or font dependency. Product-specific styles are in `src/day.css`; the guide is isolated in `src/style-guide.css`.
+The current visual direction comes from the website frontend in [THEschildkrote/armtracking at commit `3dc2aff4ed5e6c858199e6da2ec9d191fae93d1d`](https://github.com/THEschildkrote/armtracking/tree/3dc2aff4ed5e6c858199e6da2ec9d191fae93d1d), under `sponsors/showcase`. See [IMPORT-NOTES.md](IMPORT-NOTES.md) for the integration boundary and validation targets.
 
-The active tab pill and panel transitions are inspired by [Chetan Verma’s Animated Tabs](https://21st.dev/@chetanverma16/components/animated-tabs), implemented here with [Base UI Tabs](https://base-ui.com/react/components/tabs) and CSS. Dialog and Collapsible use Base UI. The horizontal technology rail uses Motion `useScroll` to connect actual horizontal scroll progress to `scaleX`, with keyboard controls and reduced-motion support. Fonts are self-hosted through Fontsource. No third-party analytics or trackers are included.
+Edit the page structure and content in `index.html`, the current dark visual system in `src/showcase/showcase.css`, and the browser modules in `src/showcase/`. Those modules handle showcase navigation, visual effects, the studio interaction, and report or stream presentation. The arm is shared from the editable original `src/RobotScene.tsx`; use the source component and installed dependencies rather than copied compiled vendor bundles.
 
-The shared `LiquidButton` in `src/components/ui/liquid-glass-button.tsx` is adapted from [Ali Imam’s Liquid Glass Button](https://21st.dev/@designali-in/components/liquid-glass-button). It uses native links or buttons and scoped CSS alongside the existing Base UI components, without a Tailwind or shadcn migration. Layered glass highlights and backdrop refraction leave text unfiltered, with dark-mode, reduced-motion, forced-color, and fallback treatments. The style guide includes working demo links for its pinned hover, focus, and pressed appearances, plus a native disabled example.
+The SO-101-style model uses procedural Three.js geometry, materials, joints, and animation. It is an illustration rather than a downloaded engineering twin, calibrated robot kinematics, or evidence of a physical pickup. The medication scene opens a weekly-organizer compartment and moves loose pills to a dish on a separate bedside table; it does not choose a medication or dose. Text status must remain synchronized with selection, confirmation, completion, and cancellation.
 
-## Content and assets
+## Archived linen design system
 
-The hero uses an editable SVG illustration in `src/SpaceScene.tsx`, styled by `src/space-scene.css`. It shows an adult-proportioned astronaut with a closed visor, a shuttle, and a visibly connected mechanical arm holding a wrench, using the website's linen, sage, and metallic palette. Movement is slow and subtle, with native play/pause controls, a static reduced-motion default, and animation suspended offscreen. The shared component supports `compact`, `phase`, and `className` props; its compact form accompanies interaction states in the object demonstration without replacing the text status.
+[STYLE-GUIDE.md](STYLE-GUIDE.md) and `/style-guide` preserve version 1.6 of the earlier linen and sage design. They remain useful for the legacy React pages and components and have not been automatically merged with the dark showcase. Legacy colors and typography live in `src/styles.css`, object-demo styles in `src/day.css`, and guide styles in `src/style-guide.css`.
 
-The SO-101-style tabletop arm remains a procedural Three.js illustration in `src/RobotScene.tsx`. Its geometry, materials, lighting, joints, and animation are editable source code rather than a downloaded 3D asset or an engineering twin of the physical arm.
+The retained `src/Wordmark.tsx` provides the custom SVG Look signature. `src/SpaceScene.tsx` and `src/space-scene.css` contain the technical shuttle illustration. The shared `LiquidButton` in `src/components/ui/liquid-glass-button.tsx` is adapted from [Ali Imam’s Liquid Glass Button](https://21st.dev/@designali-in/components/liquid-glass-button), with native links or buttons and scoped CSS alongside Base UI. Its enabled guide examples link to `/demo`; the disabled example uses native disabled behavior.
 
-The landing page prominently renders `<RobotScene moment="medicine" />` rather than limiting the model to the demo route. This medication-delivery concept shows a seven-day plastic pill organizer on the main desk and a shallow dish on a separate bedside table. After confirmation, the arm opens a compartment, collects loose pills, and places them individually into the dish. The scene does not determine medication or dose and makes no clinical claim.
+The legacy animated tabs were inspired by [Chetan Verma’s Animated Tabs](https://21st.dev/@chetanverma16/components/animated-tabs) and implemented with [Base UI Tabs](https://base-ui.com/react/components/tabs). Legacy fonts remain self-hosted through Fontsource. These references describe the retained implementation, not an additional dependency or redesign of the current showcase.
 
-`RobotScene` is shared by the landing page, object demonstration, and style guide. The landing model defaults to a static pose, with `ArmPreview` in `src/App.tsx` providing native “Preview pill delivery,” “Stop preview,” and replay controls. This on-demand preview starts directly; the full `/demo` interaction still requires selection and confirmation. The guide specimen stays static.
+## Content boundaries
 
-The demo uses `RobotMoment` values `medicine`, `mug`, `water`, and `phone` and `RobotPhase` values `idle`, `selected`, `reaching`, and `done`. Selection highlights the target without moving the arm. Confirmation starts the medicine sequence of opening the compartment and transferring individual pills over approximately 10–12 seconds; other objects retain the approximately four-second pickup sequence. The scene signals completion through its callback. Reset and object changes cancel the sequence; reduced motion shows the completed state directly. Keep the text status synchronized with the scene.
+The frontend import excludes evidence logs, sponsor credentials, and the hardware backend. No measured task-success or clinical-efficacy result is established by the browser simulation. Any future evaluation report must identify its source and distinguish prediction or replay metrics from physical grasp outcomes.
 
-The supported introduction is “Look explores how gaze-controlled robotics can make everyday objects easier to reach for people with limited hand mobility.” The astronaut represents possibility, without inventing a person, equating disability with wearing a spacesuit, or claiming NASA involvement or flight readiness. The tabletop scene illustrates intended interaction and does not reproduce calibrated kinematics, physical grasp performance, or real robot control.
-
-The $100–150 figure is the team’s estimate for the self-printed arm build, not a full system cost. No measured efficacy or task-success figures are presented.
-
-When the video is ready, update `VideoLink` in `src/App.tsx` with its actual destination and remove the coming-soon treatment. Use a descriptive title and accessible captions for the published video.
+The $100–150 figure in the retained material is the team's estimate for the self-printed arm build, not a verified complete-system price. The legacy video remains unavailable until a real destination is supplied to `VideoLink` in `src/App.tsx`; use accessible captions when publishing it. Space imagery in the archived design is a concept and does not claim NASA involvement or flight readiness.

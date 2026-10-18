@@ -56,6 +56,7 @@ export default function StyleGuide() {
   return <main className="sg-page" id="main-content">
     <div className="sg-container">
       <header className="sg-intro">
+        <p className="sg-small">Earlier linen design system. The <a href="/">current website</a> uses the dark showcase imported from armtracking.</p>
         <div className="sg-intro-top"><a href="/" className="sg-back-link">← Back to Look</a><span className="sg-version">Website system · Version 1.6</span></div>
         <h1>Look <em>style guide</em></h1>
         <div className="sg-intro-bottom"><div><h2>Website design system</h2><p>A minimal website for an assistive robotics prototype, with linen surfaces, sage accents, a technical SVG shuttle scene, and a visible SO-101 medication-delivery concept.</p></div><a className="sg-text-link" href="/">View the website <ArrowUpRight size={16} aria-hidden="true" /></a></div>

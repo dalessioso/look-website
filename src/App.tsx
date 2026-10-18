@@ -138,7 +138,8 @@ function NotFound() {
 }
 
 export default function App() {
-  const path = window.location.pathname.replace(/\/$/, '') || '/';
+  const requestedPath = window.location.pathname.replace(/\/$/, '') || '/';
+  const path = requestedPath === '/classic' || requestedPath === '/legacy.html' ? '/' : requestedPath;
   useEffect(() => { document.title = (path === '/demo' || path === '/day') ? 'Interactive demo — Look' : path === '/style-guide' ? 'Look — Style guide' : path === '/' ? 'Look — An assistive arm guided by your gaze' : 'Page not found — Look'; }, [path]);
   return <Suspense fallback={<div className="route-loading" role="status">Loading Look…</div>}>{path === '/' ? <Home /> : (path === '/demo' || path === '/day') ? <DayExperience /> : path === '/style-guide' ? <StyleGuide /> : <NotFound />}</Suspense>;
 }
