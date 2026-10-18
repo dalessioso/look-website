@@ -88,4 +88,6 @@ Vercel reported a successful deployment of `086c814`, and the production homepag
 
 At 11:01 AM EDT the quick tunnel lost network connectivity, then repeatedly reported `Unauthorized: Tunnel not found`. Its hostname returned NXDOMAIN even while the local relay processes were still running. The private workspace and glasses sources remained fresh and returned HTTP 200. The public relay was replaced using HTTP/2 transport; its original 12:12 PM EDT deadline was preserved.
 
-The A2000 camera inventory currently does not contain the wrist USB device (PID 9221). The wrist route remains configured for fresh pickup-alignment snapshots, but it cannot supply new images without that camera connected. No robot process was restarted or camera ownership changed.
+The initial recovery inventory did not contain the wrist USB device (PID 9221). A later inventory confirmed it was reconnected and reported OK. No new wrist alignment image was available during final verification; the route remains configured to show fresh images during pickups. No robot process was restarted or camera ownership changed.
+
+The production studio was reloaded and automatically displayed the workspace and glasses images with no connection click. All 34 frontend tests and the production build passed. The wrist panel accurately reported that it was waiting for a fresh alignment frame.
