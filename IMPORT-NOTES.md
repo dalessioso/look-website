@@ -28,7 +28,7 @@ SSH access to A2000 has been restored. Earlier services on ports 8080 and 8769 w
 
 The bridge allowlists `/side.jpg` from `side_check.jpg`, `/front.png` from `front_now.png`, and `/wrist.jpg` from `wrist_check.jpg`, plus `/status` for availability. Frames must be no older than 10 seconds; stale or unavailable image routes return HTTP 503. Workspace and outward-facing glasses feeds were displayed successfully in the browser at 640 × 480 and 240 px source width respectively. The wrist image was stale and correctly returned 503. The local website preset sets only `http://127.0.0.1:18771/side.jpg` and `http://127.0.0.1:18771/front.png`, leaving wrist blank.
 
-The bridge source is included for reproducibility, with no raw logs, camera images, credentials, or hardware imports. [README.md](README.md#camera-sources) provides foreground bridge and SSH-forward examples using the configurable `A2000` alias. These verified connections remain private. The HTTPS Vercel deployment requires HTTPS relay URLs; enabling a temporary public feed relay is awaiting the user's decision. Credentials must not be placed in URLs, and a relay must not expose robot control.
+The bridge source is included for reproducibility, with no raw logs, camera images, credentials, or hardware imports. [README.md](README.md#camera-sources) provides foreground bridge and SSH-forward examples using the configurable `A2000` alias. The owner subsequently authorized public sharing of the workspace and outward glasses feeds. `tools/temporary-public-relay.py` exposes only those two images through a two-hour HTTPS quick tunnel, with its URL and expiry published in `src/showcase/data/public-relay.json`. The private bridge, wrist source, status, and robot APIs remain outside that public allowlist. Credentials must not be placed in URLs, and a relay must not expose robot control.
 
 ## Restored historical evaluation
 
@@ -71,7 +71,7 @@ The checks below were completed for the earlier version with the 3D showcase. Th
 
 The camera-only revision has the following completed checks:
 
-- `npm test` passes all **15 tests**.
+- `npm test` passes all **20 tests**.
 - `npm run build` passes; the retained legacy Three.js bundle still produces the existing chunk-size warning.
 - Home, Live views, and Evaluation fit a **320 px** viewport without horizontal page overflow.
 - The retained `/day` route renders the legacy experience.
@@ -79,4 +79,4 @@ The camera-only revision has the following completed checks:
 - The current showcase route contains only the iris canvas, with no 3D arm canvas.
 - The private workspace and outward-facing glasses image feeds display successfully in the browser. The stale wrist source returns HTTP 503 and is not included in the preset.
 
-Vercel reported a successful deployment of `086c814`, and the production homepage and evaluation page were verified in the browser, including the restored metrics and full report. A public HTTPS feed relay has not been enabled; its use awaits the user's decision. The completed local checks do not establish public feed availability.
+Vercel reported a successful deployment of `086c814`, and the production homepage and evaluation page were verified in the browser, including the restored metrics and full report. The authorized public relay returns JPEG and PNG responses for the workspace and glasses. Public status, wrist, and control routes are denied. Nine additional Python tests pass for the proxy boundaries and expiry. The website exposes an explicit **Connect live feeds** action and disables that session at its published expiry; HTTP presets are hidden on HTTPS pages.

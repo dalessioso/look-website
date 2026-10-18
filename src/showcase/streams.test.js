@@ -287,7 +287,7 @@ test('URL validation rejects credentials, non-HTTP schemes, and HTTP on HTTPS pa
   assert.equal(parseStreamUrl('http://127.0.0.1:18769/side_raw.jpg', 'http:').snapshot, true);
 });
 
-function installDom(t) {
+function installDom(t, { relay = null, protocol = 'http:' } = {}) {
   const scheduler = new Scheduler();
   const nodes = {};
   const keys = ['wrist', 'overhead', 'user'];
@@ -295,7 +295,7 @@ function installDom(t) {
     nodes['feed-' + key] = new FakeImage();
     for (const prefix of ['source-', 'status-', 'empty-']) nodes[prefix + key] = new FakeElement();
   }
-  for (const id of ['stream-help', 'stream-form', 'disconnect-streams', 'local-a2000', 'activity']) nodes[id] = new FakeElement();
+  for (const id of ['stream-help', 'stream-form', 'disconnect-streams', 'local-a2000', 'activity', 'connect-live-feeds', 'public-relay-hint']) nodes[id] = new FakeElement();
   const dot = new FakeElement();
   const document = new EventTarget();
   document.body = { dataset: { page: 'home' } };
@@ -303,7 +303,7 @@ function installDom(t) {
   document.getElementById = id => nodes[id];
   document.querySelector = selector => selector === '.connection .dot' ? dot : null;
   const window = new EventTarget();
-  const globals = { document, window, location: { protocol: 'http:' }, setTimeout: scheduler.setTimer, clearTimeout: scheduler.clearTimer };
+  const globals = { document, window, location: { protocol }, setTimeout: scheduler.setTimer, clearTimeout: scheduler.clearTimer };
   const original = Object.fromEntries(Object.keys(globals).map(key => [key, Object.getOwnPropertyDescriptor(globalThis, key)]));
   for (const [key, value] of Object.entries(globals)) Object.defineProperty(globalThis, key, { value, writable: true, configurable: true });
   let cleanup = () => {};
@@ -314,7 +314,7 @@ function installDom(t) {
       else delete globalThis[key];
     }
   });
-  cleanup = initializeStreams();
+  cleanup = initializeStreams({ relay, now: scheduler.now });
   return { scheduler, document, window, nodes, cleanup };
 }
 
@@ -362,5 +362,107 @@ test('page and document visibility pause/resume feeds; disconnect and cleanup pr
   cleanup();
   nodes['stream-form'].dispatchEvent(new Event('submit', { cancelable: true }));
   assert.equal(image.requests.length, 4, 'Disposed form listeners cannot reconnect');
+  assert.equal(scheduler.pending.size, 0);
+});
+
+const publicRelay = { baseUrl: 'https://camera-session.trycloudflare.com', expiresAt: new Date(11000).toISOString() };
+
+test('public HTTPS preset waits for a click, hides the local preset, and disconnect clears frames', t => {
+  const { scheduler, document, nodes, window, cleanup } = installDom(t, { relay: publicRelay, protocol: 'https:' });
+  assert.equal(nodes['connect-live-feeds'].hidden, false);
+  assert.equal(nodes['connect-live-feeds'].disabled, false);
+  assert.equal(nodes['local-a2000'].hidden, true);
+  assert.match(nodes['public-relay-hint'].textContent, /Temporary live session until/);
+  assert.equal(nodes['feed-overhead'].requests.length, 0);
+  assert.equal(nodes['feed-user'].requests.length, 0);
+  nodes['local-a2000'].dispatchEvent(new Event('click'));
+  assert.equal(nodes['source-overhead'].value, '', 'The hidden HTTP preset cannot fill hosted URL inputs');
+  document.body.dataset.page = 'studio';
+  window.dispatchEvent(new Event('look:page'));
+  nodes['connect-live-feeds'].dispatchEvent(new Event('click'));
+  assert.equal(nodes['source-overhead'].value, publicRelay.baseUrl + '/side.jpg');
+  assert.equal(nodes['source-user'].value, publicRelay.baseUrl + '/front.png');
+  assert.equal(nodes['source-wrist'].value, '');
+  assert.equal(nodes['feed-overhead'].requests.length, 1);
+  assert.equal(nodes['feed-user'].requests.length, 1);
+  assert.equal(nodes['feed-wrist'].requests.length, 0);
+  nodes['feed-overhead'].load();
+  nodes['feed-user'].load();
+  assert.equal(nodes.activity.textContent, '2 feeds connected');
+  nodes['disconnect-streams'].dispatchEvent(new Event('click'));
+  assert.equal(nodes['feed-overhead'].src, '');
+  assert.equal(nodes['feed-user'].src, '');
+  assert.equal(nodes.activity.textContent, 'No feeds connected');
+  assert.equal(scheduler.pending.size, 1, 'Only the lease deadline remains after disconnect');
+  cleanup();
+  assert.equal(scheduler.pending.size, 0);
+});
+
+test('public session expiry clears its frames, disables reconnect, and rejects pasted expired URLs', t => {
+  const { scheduler, document, window, nodes } = installDom(t, { relay: publicRelay, protocol: 'https:' });
+  document.body.dataset.page = 'studio';
+  window.dispatchEvent(new Event('look:page'));
+  nodes['connect-live-feeds'].dispatchEvent(new Event('click'));
+  nodes['feed-overhead'].load();
+  nodes['feed-user'].load();
+  scheduler.advance(10000);
+  assert.equal(nodes['connect-live-feeds'].disabled, true);
+  assert.equal(nodes['connect-live-feeds'].textContent, 'Live session ended');
+  assert.match(nodes['stream-help'].textContent, /Live session ended/);
+  assert.equal(nodes['feed-overhead'].src, '');
+  assert.equal(nodes['feed-user'].src, '');
+  assert.equal(nodes['feed-overhead'].hidden, true);
+  assert.equal(scheduler.pending.size, 0);
+  const requests = nodes['feed-overhead'].requests.length;
+  nodes['connect-live-feeds'].dispatchEvent(new Event('click'));
+  nodes['source-overhead'].value = publicRelay.baseUrl + '/side.jpg?manually=pasted';
+  nodes['stream-form'].dispatchEvent(new Event('submit', { cancelable: true }));
+  window.dispatchEvent(new Event('pageshow'));
+  assert.equal(nodes['feed-overhead'].requests.length, requests);
+  assert.match(nodes['stream-help'].textContent, /temporary relay is no longer available/);
+});
+
+test('expiry on resume blocks stale public feeds even when its background timer was throttled', t => {
+  const { scheduler, document, window, nodes } = installDom(t, { relay: publicRelay, protocol: 'https:' });
+  document.body.dataset.page = 'studio';
+  window.dispatchEvent(new Event('look:page'));
+  nodes['connect-live-feeds'].dispatchEvent(new Event('click'));
+  document.hidden = true;
+  document.dispatchEvent(new Event('visibilitychange'));
+  const requests = nodes['feed-overhead'].requests.length;
+  scheduler.time = 12000; // Move the wall clock without delivering background timers.
+  document.hidden = false;
+  document.dispatchEvent(new Event('visibilitychange'));
+  assert.equal(nodes['feed-overhead'].requests.length, requests);
+  assert.equal(nodes['feed-overhead'].src, '');
+  assert.equal(nodes['connect-live-feeds'].disabled, true);
+  assert.equal(scheduler.pending.size, 0);
+});
+
+test('public lease expiry preserves unrelated custom camera connections', t => {
+  const { scheduler, document, window, nodes } = installDom(t, { relay: publicRelay, protocol: 'https:' });
+  document.body.dataset.page = 'studio';
+  window.dispatchEvent(new Event('look:page'));
+  nodes['source-wrist'].value = 'https://private-camera.example/wrist';
+  nodes['source-overhead'].value = publicRelay.baseUrl + '/side.jpg';
+  nodes['stream-form'].dispatchEvent(new Event('submit', { cancelable: true }));
+  nodes['feed-wrist'].load();
+  nodes['feed-overhead'].load();
+  scheduler.advance(10000);
+  assert.equal(nodes['feed-overhead'].src, '');
+  assert.equal(nodes['feed-wrist'].src, 'https://private-camera.example/wrist');
+  assert.equal(nodes['status-wrist'].textContent, 'Connected');
+  assert.equal(nodes.activity.textContent, '1 feed connected');
+  nodes['source-overhead'].value = '';
+  nodes['stream-form'].dispatchEvent(new Event('submit', { cancelable: true }));
+  assert.equal(nodes['feed-wrist'].requests.length, 2, 'Custom sources remain usable after the published lease');
+});
+
+test('missing or invalid relay config makes no public connection available', t => {
+  const { nodes, scheduler } = installDom(t, { relay: { baseUrl: 'http://relay.example', expiresAt: publicRelay.expiresAt }, protocol: 'https:' });
+  assert.equal(nodes['connect-live-feeds'].hidden, true);
+  assert.equal(nodes['public-relay-hint'].hidden, true);
+  nodes['connect-live-feeds'].dispatchEvent(new Event('click'));
+  assert.equal(nodes['feed-overhead'].requests.length, 0);
   assert.equal(scheduler.pending.size, 0);
 });

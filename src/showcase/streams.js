@@ -1,3 +1,5 @@
+import publishedRelay from './data/public-relay.json' with { type: 'json' };
+
 // Image display only. These connections never send robot commands.
 export function parseStreamUrl(value, pageProtocol) {
   if (!value.trim()) return null;
@@ -106,15 +108,44 @@ export function createFeedConnection({ image, onState, setTimer = setTimeout, cl
 }
 
 let disposeStreams;
-export function initializeStreams() {
+function publicRelayConfig(config) {
+  try {
+    const base = new URL(config.baseUrl);
+    const expiresAt = Date.parse(config.expiresAt);
+    if (base.protocol !== 'https:' || base.username || base.password || base.search || base.hash || !Number.isFinite(expiresAt)) return null;
+    base.pathname = base.pathname.replace(/\/$/, '') + '/';
+    return { base, expiresAt };
+  } catch { return null; }
+}
+
+export function initializeStreams({ relay = publishedRelay, now = Date.now, setTimer = setTimeout, clearTimer = clearTimeout } = {}) {
   disposeStreams?.();
   const events = new AbortController();
   const listen = (target, type, fn) => target.addEventListener(type, fn, { signal: events.signal });
   const keys = ['wrist', 'overhead', 'user'];
   const states = {};
   const help = document.getElementById('stream-help');
+  const publicButton = document.getElementById('connect-live-feeds');
+  const publicHint = document.getElementById('public-relay-hint');
+  const localButton = document.getElementById('local-a2000');
+  const published = publicRelayConfig(relay);
+  let expiryTimer;
+  let sources = {};
+  const isPublishedSource = source => {
+    if (!published || !source) return false;
+    const url = new URL(source.url);
+    return url.origin === published.base.origin && url.pathname.startsWith(published.base.pathname);
+  };
+  localButton.hidden = location.protocol === 'https:';
+  publicButton.hidden = !published;
+  publicButton.disabled = false;
+  publicButton.textContent = 'Connect live feeds';
+  publicHint.hidden = !published;
+  if (published) publicHint.textContent = `Temporary live session until ${new Date(published.expiresAt).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', timeZoneName: 'short' })}.`;
+
   const feeds = Object.fromEntries(keys.map(key => [key, createFeedConnection({
     image: document.getElementById('feed-' + key),
+    setTimer, clearTimer, now,
     onState(state) {
       states[key] = state;
       const status = document.getElementById('status-' + key);
@@ -130,36 +161,80 @@ export function initializeStreams() {
       document.querySelector('.connection .dot').classList.toggle('live', connected > 0);
     },
   })]));
-  const pause = () => Object.values(feeds).forEach(feed => feed.setSuspended(document.hidden || document.body.dataset.page !== 'studio'));
-  listen(document.getElementById('stream-form'), 'submit', event => {
-    event.preventDefault();
-    let sources;
+  function checkLease() {
+    if (!published || now() < published.expiresAt) return true;
+    clearTimer(expiryTimer);
+    expiryTimer = undefined;
+    publicButton.disabled = true;
+    publicButton.textContent = 'Live session ended';
+    publicHint.textContent = 'This temporary camera session has ended.';
+    let disconnected = false;
+    for (const key of keys) {
+      if (isPublishedSource(sources[key])) {
+        feeds[key].disconnect();
+        sources[key] = null;
+        disconnected = true;
+      }
+    }
+    if (disconnected) help.textContent = 'Live session ended. Temporary camera feeds have been disconnected.';
+    return false;
+  }
+  function scheduleExpiry() {
+    if (!published || !checkLease()) return;
+    expiryTimer = setTimer(() => {
+      expiryTimer = undefined;
+      if (checkLease()) scheduleExpiry();
+    }, Math.min(published.expiresAt - now(), 2147483647));
+  }
+  const pause = () => {
+    checkLease();
+    Object.values(feeds).forEach(feed => feed.setSuspended(document.hidden || document.body.dataset.page !== 'studio'));
+  };
+  function connectSources() {
+    checkLease();
+    let nextSources;
     try {
-      sources = Object.fromEntries(keys.map(key => [key, parseStreamUrl(document.getElementById('source-' + key).value, location.protocol)]));
+      nextSources = Object.fromEntries(keys.map(key => [key, parseStreamUrl(document.getElementById('source-' + key).value, location.protocol)]));
+      if (published && now() >= published.expiresAt && Object.values(nextSources).some(isPublishedSource)) {
+        throw new Error('Live session ended. This temporary relay is no longer available.');
+      }
     } catch (error) { help.textContent = error.message; return; }
+    sources = nextSources;
     keys.forEach(key => feeds[key].connect(sources[key]));
     help.textContent = Object.values(sources).some(Boolean)
       ? 'Camera images refresh automatically. Feeds pause when this view is hidden and are not recorded here.'
       : 'Enter a camera source to connect a feed.';
+  }
+  listen(document.getElementById('stream-form'), 'submit', event => {
+    event.preventDefault();
+    connectSources();
+  });
+  listen(publicButton, 'click', () => {
+    if (!published || !checkLease()) return;
+    document.getElementById('source-wrist').value = '';
+    document.getElementById('source-overhead').value = new URL('side.jpg', published.base).href;
+    document.getElementById('source-user').value = new URL('front.png', published.base).href;
+    connectSources();
   });
   listen(document.getElementById('disconnect-streams'), 'click', () => {
     Object.values(feeds).forEach(feed => feed.disconnect());
+    sources = {};
     help.textContent = 'Feeds disconnected.';
   });
-  listen(document.getElementById('local-a2000'), 'click', () => {
+  listen(localButton, 'click', () => {
+    if (location.protocol === 'https:') return;
     document.getElementById('source-wrist').value = '';
     document.getElementById('source-overhead').value = 'http://127.0.0.1:18771/side.jpg';
     document.getElementById('source-user').value = 'http://127.0.0.1:18771/front.png';
-    help.textContent = location.protocol === 'https:'
-      ? 'Local relay addresses filled in. Open the local HTTP website to use these SSH feeds; Vercel requires an HTTPS relay.'
-      : 'A2000 workspace and glasses sources filled in. Start the SSH tunnel, then select Connect feeds. The wrist source is unavailable.';
+    help.textContent = 'A2000 workspace and glasses sources filled in. Start the SSH tunnel, then select Connect feeds. The wrist source is unavailable.';
   });
   listen(document, 'visibilitychange', pause);
   listen(window, 'look:page', pause);
   listen(window, 'pagehide', () => Object.values(feeds).forEach(feed => feed.setSuspended(true)));
   listen(window, 'pageshow', pause);
   pause();
-  const cleanup = () => { events.abort(); Object.values(feeds).forEach(feed => feed.disconnect()); };
+  scheduleExpiry();
+  const cleanup = () => { events.abort(); clearTimer(expiryTimer); Object.values(feeds).forEach(feed => feed.disconnect()); };
   disposeStreams = cleanup;
   return cleanup;
 }

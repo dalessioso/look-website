@@ -81,6 +81,12 @@
 <h2>Workspace camera views</h2>
 <span class="eyebrow">Video inputs</span>
 </div>
+<div class="live-feed-controls">
+<button type="button" id="connect-live-feeds" hidden>Connect live feeds</button>
+<button type="button" id="disconnect-streams">Disconnect</button>
+<span id="public-relay-hint" hidden></span>
+</div>
+<p class="stream-help" id="stream-help" role="status">Connect the live session or add camera URLs below. Feeds are not recorded here.</p>
 <div class="streams">
 <section class="stream">
 <h3>Wrist camera</h3>
@@ -126,7 +132,7 @@
 </section>
 </div>
 <details class="stream-settings">
-<summary>Connect video streams</summary>
+<summary>Custom camera URLs</summary>
 <form id="stream-form">
 <div class="stream-fields">
 <label>Wrist camera URL<input id="source-wrist" type="url" placeholder="https://your-camera-relay.example/wrist" autocomplete="off">
@@ -136,9 +142,9 @@
 <label>User perspective URL<input id="source-user" type="url" placeholder="https://your-camera-relay.example/front" autocomplete="off">
 </label>
 </div>
-<button type="submit">Connect feeds</button> <button type="button" id="disconnect-streams">Disconnect</button>
+<button type="submit">Connect custom feeds</button>
 <button type="button" id="local-a2000">Use local A2000 sources</button>
-<p class="stream-help" id="stream-help" role="status">Use HTTPS MJPEG URLs or JPEG/PNG/WebP image URLs. Image URLs refresh automatically; feeds are not recorded here.</p>
+<p class="stream-help">Use HTTPS MJPEG URLs or JPEG/PNG/WebP image URLs. Image URLs refresh automatically.</p>
 </form>
 </details>
 </section>

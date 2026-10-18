@@ -35,3 +35,5 @@ body[data-page="home"] .connection{visibility:hidden}
 .iris-motion:hover:not(:disabled){background:#ffffff08}
 .context-clock input:disabled{opacity:.55;cursor:not-allowed}
 @media(max-width:420px){.context-layer-head{flex-direction:column}.page-title{flex-wrap:wrap}.page-title .pill{max-width:100%}.nav a{padding:9px 10px}}
+
+.live-feed-controls{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 12px}.live-feed-controls [hidden]{display:none}.live-feed-controls button{font-size:14px;padding:11px 17px}.live-feed-controls #connect-live-feeds{background:#d6e2f0;color:#111722;border-color:#d6e2f0}.live-feed-controls #connect-live-feeds:disabled{background:#202938;color:#a4b1c4;border-color:#344156;cursor:default}.live-feed-controls span{font-size:13px;line-height:1.5;color:#96a6bd}.feeds-panel>.stream-help{margin:0 0 25px;line-height:1.6}#local-a2000[hidden]{display:none}

@@ -28,7 +28,7 @@ npm ci
 npm run dev
 ```
 
-Open `http://127.0.0.1:8780`. Build with `npm run build`; preview the production output with `npm run preview` after stopping the development server. Run `npm test` for the automated checks. The current build and all 15 tests pass; local browser checks are recorded in [IMPORT-NOTES.md](IMPORT-NOTES.md). The production homepage and restored evaluation have also been verified on Vercel.
+Open `http://127.0.0.1:8780`. Build with `npm run build`; preview the production output with `npm run preview` after stopping the development server. Run `npm test` for the automated checks. The current build and all 20 frontend tests pass; local browser checks are recorded in [IMPORT-NOTES.md](IMPORT-NOTES.md). The production homepage and restored evaluation have also been verified on Vercel.
 
 ## Routes
 
@@ -78,7 +78,21 @@ ssh -N -o ExitOnForwardFailure=yes -L 127.0.0.1:18771:127.0.0.1:8771 A2000
 
 `A2000` is the user's configured SSH alias; no account identity or credentials are embedded in these examples. Stop the bridge and forward with **Ctrl+C** in their respective terminals. The bridge contains no hardware imports, camera-opening code, or robot-control calls. Only its reusable source is included in this repository; raw logs and camera images are not.
 
-These loopback addresses are private to the machine running the tunnel. The HTTPS Vercel site needs browser-reachable **HTTPS camera relay URLs**. A temporary public relay has not been enabled and is awaiting the user's decision; the verified feeds remain private. Keep credentials out of URLs and frontend code, and expose only camera images through any relay, never robot-control endpoints. The production website is deployed and verified; public camera-feed availability is separate.
+These loopback addresses are private to the machine running the tunnel. The HTTPS Vercel site needs browser-reachable **HTTPS camera relay URLs**. The owner has enabled a temporary public relay for the workspace and outward-facing glasses. On the hosted site, choose **Connect live feeds**; local HTTP presets are hidden there. The published session expires at **12:12 PM EDT on October 18, 2026**. Cameras connect only after a click, and public connections are cleared at expiry. Keep credentials out of URLs and frontend code, and expose only camera images through any relay, never robot-control endpoints. The production website is deployed and verified; public camera-feed availability is separate.
+
+## Temporary public relay
+
+The relay publishes only `/side.jpg` and `/front.png` through a Cloudflare HTTPS quick tunnel. `/status`, wrist images, other local files, and control endpoints are not exposed. Requests use a fixed loopback upstream, reject redirects and invalid images, and return `no-store`. The private bridge still rejects frames older than ten seconds. The lease is enforced on the server even if a visitor changes their browser clock; the tunnel process terminates at the two-hour limit.
+
+The SSH forward and snapshot bridge must stay running on the Mac. With `cloudflared` installed, an explicitly authorized new session can be started in the foreground:
+
+```sh
+python3 tools/temporary-public-relay.py --config-output src/showcase/data/public-relay.json
+```
+
+The command creates a new public URL and expiry in that JSON file. Build and deploy the updated config to publish the new session on Vercel. `Ctrl+C` stops the foreground relay early. A stopped or expired quick tunnel cannot be resumed at its old URL. No camera images are stored in this repository.
+
+Run the relay boundary checks with `python3 -B -m unittest discover -s tools -p 'test_temporary_public_relay.py' -v`. Nine tests cover path/method restrictions, expiry, image validation, bounded reads, error handling, and redirects.
 
 ## Saved evaluation
 
