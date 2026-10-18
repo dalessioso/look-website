@@ -79,4 +79,4 @@ The camera-only revision has the following completed checks:
 - The current showcase route contains only the iris canvas, with no 3D arm canvas.
 - The private workspace and outward-facing glasses image feeds display successfully in the browser. The stale wrist source returns HTTP 503 and is not included in the preset.
 
-Production deployment of this revision has not yet been verified. A public HTTPS feed relay has not been enabled; its use awaits the user's decision. The completed local checks do not establish public feed availability.
+Vercel reported a successful deployment of `086c814`, and the production homepage and evaluation page were verified in the browser, including the restored metrics and full report. A public HTTPS feed relay has not been enabled; its use awaits the user's decision. The completed local checks do not establish public feed availability.

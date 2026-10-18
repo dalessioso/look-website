@@ -28,7 +28,7 @@ npm ci
 npm run dev
 ```
 
-Open `http://127.0.0.1:8780`. Build with `npm run build`; preview the production output with `npm run preview` after stopping the development server. Run `npm test` for the automated checks. The current build and all 15 tests pass; local browser checks are recorded in [IMPORT-NOTES.md](IMPORT-NOTES.md). Production verification of this revision remains pending.
+Open `http://127.0.0.1:8780`. Build with `npm run build`; preview the production output with `npm run preview` after stopping the development server. Run `npm test` for the automated checks. The current build and all 15 tests pass; local browser checks are recorded in [IMPORT-NOTES.md](IMPORT-NOTES.md). The production homepage and restored evaluation have also been verified on Vercel.
 
 ## Routes
 
@@ -78,7 +78,7 @@ ssh -N -o ExitOnForwardFailure=yes -L 127.0.0.1:18771:127.0.0.1:8771 A2000
 
 `A2000` is the user's configured SSH alias; no account identity or credentials are embedded in these examples. Stop the bridge and forward with **Ctrl+C** in their respective terminals. The bridge contains no hardware imports, camera-opening code, or robot-control calls. Only its reusable source is included in this repository; raw logs and camera images are not.
 
-These loopback addresses are private to the machine running the tunnel. The HTTPS Vercel site needs browser-reachable **HTTPS camera relay URLs**. A temporary public relay has not been enabled and is awaiting the user's decision; the verified feeds remain private. Keep credentials out of URLs and frontend code, and expose only camera images through any relay, never robot-control endpoints. Production deployment of this revision has not yet been verified.
+These loopback addresses are private to the machine running the tunnel. The HTTPS Vercel site needs browser-reachable **HTTPS camera relay URLs**. A temporary public relay has not been enabled and is awaiting the user's decision; the verified feeds remain private. Keep credentials out of URLs and frontend code, and expose only camera images through any relay, never robot-control endpoints. The production website is deployed and verified; public camera-feed availability is separate.
 
 ## Saved evaluation
 
