@@ -159,7 +159,7 @@ export function initializeNavigation() {
       else e.removeAttribute('aria-current');
     });
     window.dispatchEvent(new CustomEvent('look:page', { detail: { page } }));
-    if (['story', 'technology', 'main'].includes(name)) {
+    if (['technology', 'main'].includes(name)) {
       anchorFrame = requestAnimationFrame(() => {
         anchorFrame = 0;
         document.getElementById(name)?.scrollIntoView({ behavior: motion.matches ? 'instant' : 'smooth' });
@@ -204,31 +204,6 @@ export function initializeNavigation() {
   listen(window, 'pointerout', event => {
     if (!event.relatedTarget) { pointer = { x: 0, y: 0 }; targetHover = 0; }
   }, { passive: true });
-
-  function storyObject(name) {
-    document.querySelectorAll('.object-tabs button').forEach(e => e.setAttribute('aria-selected', String(e.id === 'tab-' + name)));
-    document.getElementById('original-arm')?.setAttribute('aria-labelledby', 'tab-' + name);
-    window.dispatchEvent(new CustomEvent('look:object', { detail: name }));
-  }
-  const tabs = Array.from(document.querySelectorAll('.object-tabs [role="tab"]'));
-  listen(window, 'look:animation-ready', () => {
-    const selected = tabs.find(tab => tab.getAttribute('aria-selected') === 'true');
-    if (selected) storyObject(selected.id.replace('tab-', ''));
-  });
-  function selectTab(tab) {
-    storyObject(tab.id.replace('tab-', ''));
-    tabs.forEach(item => { item.tabIndex = item === tab ? 0 : -1; });
-  }
-  tabs.forEach((tab, index) => {
-    tab.tabIndex = tab.getAttribute('aria-selected') === 'true' ? 0 : -1;
-    listen(tab, 'click', () => selectTab(tab));
-    listen(tab, 'keydown', event => {
-      const offset = event.key === 'ArrowRight' ? 1 : event.key === 'ArrowLeft' ? -1 : 0;
-      const next = event.key === 'Home' ? 0 : event.key === 'End' ? tabs.length - 1 : offset ? (index + offset + tabs.length) % tabs.length : -1;
-      if (next < 0) return;
-      event.preventDefault(); tabs[next].focus(); selectTab(tabs[next]);
-    });
-  });
 
   resizeIris();
   updateMotionButton();

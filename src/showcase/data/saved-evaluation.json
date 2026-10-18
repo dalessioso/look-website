@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "run_id": "9141cc2558a74fbc9d8d0eb8bfa0cbdd",
+  "elapsed_s": 6.71,
+  "text": "CUSTOM ROBOTICS EVALUATION\nData: Synthetic sessions — smoke-test metrics only\nExecution: Local replay — no Chalk API call\nCompleted in 6.7s\nProtocol: tune on training sessions; measure on separate test sessions.\nScope: existing gaze/history intent scorer, not the hourly routine graph or physical grasp success.\n\nGAZE ONLY\nConfirmed selections evaluated: 6\nTop prediction 300 ms before confirmation: 100.0%\nCorrect pre-hover coverage: 100.0%\nMedian lead before confirmation: 0.233s\nFalse pre-hover rate: 12.5% (8 pre-hovers)\nWrong predictions at recorded corrections: 0 / 0\n\nGAZE + HISTORY\nConfirmed selections evaluated: 6\nTop prediction 300 ms before confirmation: 100.0%\nCorrect pre-hover coverage: 100.0%\nMedian lead before confirmation: 0.233s\nFalse pre-hover rate: 12.5% (8 pre-hovers)\nWrong predictions at recorded corrections: 0 / 0\n\nHistory vs gaze-only: accuracy +0.0 percentage points; coverage +0.0 points.\n\nAuthorization audit: 0 flagged descents / 6 logged descents.\nThis audit checks recorded events, not physical safety certification.\nSYNTHETIC SMOKE TEST ONLY — not measured user or hardware performance.",
+  "report": {
+    "backend": "local",
+    "synthetic": true,
+    "mock_arm": false,
+    "evaluation_protocol": "Train-only tuning; test-time adaptation uses only prior events",
+    "voice_corrections": {
+      "synthetic-test.jsonl": 0
+    },
+    "tuned_params": {
+      "gaze only": {
+        "window_s": 1.5,
+        "tau_s": 0.5,
+        "radius_mm": 60.0,
+        "alpha": 1.0,
+        "beta": 0.0,
+        "eps": 0.02,
+        "threshold": 0.6,
+        "min_share": 0.25,
+        "min_dwell_s": 0.5,
+        "max_gap_s": 0.12,
+        "floor_dwell_s": 0.15
+      },
+      "gaze + history": {
+        "window_s": 1.5,
+        "tau_s": 0.5,
+        "radius_mm": 60.0,
+        "alpha": 1.0,
+        "beta": 0.25,
+        "eps": 0.02,
+        "threshold": 0.6,
+        "min_share": 0.25,
+        "min_dwell_s": 0.5,
+        "max_gap_s": 0.12,
+        "floor_dwell_s": 0.15
+      }
+    },
+    "results": {
+      "gaze only": {
+        "correction_cases": 0,
+        "wrong_predictions_at_correction": 0,
+        "fixations": 6,
+        "coverage": 1.0,
+        "lead_s_median": 0.23329999999999984,
+        "top1_at_300ms": 1.0,
+        "prehovers": 8,
+        "false_prehover": 0.125
+      },
+      "gaze + history": {
+        "correction_cases": 0,
+        "wrong_predictions_at_correction": 0,
+        "fixations": 6,
+        "coverage": 1.0,
+        "lead_s_median": 0.23329999999999984,
+        "top1_at_300ms": 1.0,
+        "prehovers": 8,
+        "false_prehover": 0.125
+      }
+    },
+    "safety": {
+      "synthetic-test.jsonl": {
+        "descends": 6,
+        "descend_without_authorization": 0,
+        "violations": []
+      }
+    },
+    "chalk_ops": {
+      "synthetic-test.jsonl": {
+        "queries": 0
+      }
+    }
+  },
+  "input_sha256": {
+    "synthetic-train.jsonl": "f31835c00028d10058a021320004ce7d207481c325234b4c6957b3cf74877e62",
+    "synthetic-test.jsonl": "801614fbe92900c0566c0626f3bda2aaa04c3a9dbb12fd8d79bf98b054dc85ce"
+  },
+  "provenance": {
+    "source_repository": "https://github.com/THEschildkrote/armtracking",
+    "source_commit": "c2c9b3a35a74c7ebae6fc885c44a0ba32e486175",
+    "source_path": "logs/evaluations/9141cc2558a74fbc9d8d0eb8bfa0cbdd/evaluation.json",
+    "source_evaluation_sha256": "fd31f1a49994d989d4434a84179e988c184d51d236e9cac6469e9a749724169b",
+    "saved_at": "2026-10-18T06:48:18.427867Z",
+    "saved_at_basis": "Source evaluation.json file modification time",
+    "input_hashes_verified": true,
+    "input_files": [
+      {
+        "name": "synthetic-train.jsonl",
+        "role": "training",
+        "event_count": 542,
+        "sha256": "f31835c00028d10058a021320004ce7d207481c325234b4c6957b3cf74877e62"
+      },
+      {
+        "name": "synthetic-test.jsonl",
+        "role": "test",
+        "event_count": 556,
+        "sha256": "801614fbe92900c0566c0626f3bda2aaa04c3a9dbb12fd8d79bf98b054dc85ce"
+      }
+    ],
+    "publication_note": "Absolute local paths are replaced with input basenames. Numeric results and the original report summary are preserved. Raw input events and credentials are not included."
+  }
+}

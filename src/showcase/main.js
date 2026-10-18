@@ -1,10 +1,8 @@
-import { mountAnimations } from './animation.js';
 import './showcase.css';
 import { initializeNavigation } from './navigation.js';
-import { initializeStreams } from './presentation.js';
-import { initializeStudio } from './studio.js';
+import { initializeStreams } from './streams.js';
+import { initializeSavedEvaluation } from './saved-evaluation.js';
 
 initializeNavigation();
 initializeStreams();
-initializeStudio();
-mountAnimations();
+initializeSavedEvaluation();

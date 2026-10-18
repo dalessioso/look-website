@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#030405">
 <title>Look · Intent into motion</title>
-<meta name="description" content="Explore Look, a gaze-guided assistive robotics concept with interactive 3D object demonstrations.">
+<meta name="description" content="Look brings gaze-guided assistive robotics, workspace camera views, and routine context together.">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 </head>
 <body data-page="home">
@@ -19,14 +19,14 @@
 </a>
 <nav class="nav" aria-label="Main navigation">
 <a href="#home" data-page="home">Home</a>
-<a href="#studio" data-page="studio">Demo</a>
+<a href="#studio" data-page="studio">Live views</a>
 <a href="#routines" data-page="routines">Routines</a>
 <a href="#evaluation" data-page="evaluation">Evaluation</a>
 </nav>
 <div class="connection">
 <span class="dot">
 </span>
-<span id="activity">Browser demo</span>
+<span id="activity">No feeds connected</span>
 </div>
 </header>
 <main id="main">
@@ -39,22 +39,10 @@
 <div class="iris-target" id="iris-target" aria-hidden="true">
 </div>
 <div class="hero-bottom">
-<a class="hero-action" href="#studio">Explore the 3D demo <span aria-hidden="true">↗</span>
+<a class="hero-action" href="#studio">Open live views <span aria-hidden="true">↗</span>
 </a>
 <button id="toggle-iris-motion" class="iris-motion" type="button" aria-label="Pause eye animation">Pause animation</button>
 </div>
-<section class="home-story" id="story" aria-labelledby="story-title">
-<h2 id="story-title">Everyday objects. Within reach.</h2>
-<div class="object-tabs" role="tablist" aria-label="Objects to explore">
-<button id="tab-medicine" role="tab" aria-selected="true" aria-controls="original-arm">Medicine</button>
-<button id="tab-mug" role="tab" aria-selected="false" aria-controls="original-arm">Mug</button>
-<button id="tab-water" role="tab" aria-selected="false" aria-controls="original-arm">Water</button>
-<button id="tab-phone" role="tab" aria-selected="false" aria-controls="original-arm">Phone</button>
-</div>
-<div class="original-preview" id="original-arm" role="tabpanel" aria-labelledby="tab-medicine">
-<p class="note">Loading the arm animation…</p>
-</div>
-</section>
 <section class="home-story" id="technology" aria-labelledby="technology-title">
 <h2 id="technology-title">From attention to action.</h2>
 <div class="tech-grid">
@@ -84,20 +72,19 @@
 <section class="page workspace" id="page-studio" aria-labelledby="studio-title">
 <div class="page-title">
 <div>
-<h1 id="studio-title">Portal to your vision.</h1>
-<p>See the workspace, choose an object, and confirm the reach.</p>
+<h1 id="studio-title">Your workspace, live.</h1>
+<p>View the workspace and the scene through the glasses. Add a wrist feed when available.</p>
 </div>
-<span class="pill">3D demonstration</span>
 </div>
 <section class="panel feeds-panel">
 <div class="panel-head">
-<h2>Three views. One workspace.</h2>
+<h2>Workspace camera views</h2>
 <span class="eyebrow">Video inputs</span>
 </div>
 <div class="streams">
 <section class="stream">
 <h3>Wrist camera</h3>
-<p class="stream-caption">Close-up of the gripper and object</p>
+<p class="stream-caption">Optional gripper view; no fresh source configured</p>
 <div class="feed">
 <div class="feed-empty" id="empty-wrist">
 <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1">
@@ -110,7 +97,7 @@
 </div>
 </section>
 <section class="stream workspace-feed">
-<h3>Overhead workspace</h3>
+<h3>Workspace camera</h3>
 <p class="stream-caption">The arm, table, and objects in one view</p>
 <div class="feed">
 <div class="feed-empty" id="empty-overhead">
@@ -119,13 +106,13 @@
 <circle cx="16" cy="17" r="5"/>
 <path d="m10 7 3-4h6l3 4"/>
 </svg>No stream connected</div>
-<img id="feed-overhead" alt="Overhead workspace live stream" hidden referrerpolicy="no-referrer">
+<img id="feed-overhead" alt="Workspace camera live stream" hidden referrerpolicy="no-referrer">
 <span class="feed-status" id="status-overhead">Not connected</span>
 </div>
 </section>
 <section class="stream">
 <h3>User perspective</h3>
-<p class="stream-caption">What the user sees through the glasses</p>
+<p class="stream-caption">Outward view from the glasses</p>
 <div class="feed">
 <div class="feed-empty" id="empty-user">
 <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1">
@@ -144,13 +131,14 @@
 <div class="stream-fields">
 <label>Wrist camera URL<input id="source-wrist" type="url" placeholder="https://your-camera-relay.example/wrist" autocomplete="off">
 </label>
-<label>Overhead camera URL<input id="source-overhead" type="url" placeholder="https://your-camera-relay.example/side" autocomplete="off">
+<label>Workspace camera URL<input id="source-overhead" type="url" placeholder="https://your-camera-relay.example/side" autocomplete="off">
 </label>
 <label>User perspective URL<input id="source-user" type="url" placeholder="https://your-camera-relay.example/front" autocomplete="off">
 </label>
 </div>
 <button type="submit">Connect feeds</button> <button type="button" id="disconnect-streams">Disconnect</button>
-<p class="stream-help" id="stream-help">Use HTTPS image or MJPEG URLs that are reachable from your browser. Streams load only when you connect a source; they are not recorded here.</p>
+<button type="button" id="local-a2000">Use local A2000 sources</button>
+<p class="stream-help" id="stream-help" role="status">Use HTTPS MJPEG URLs or JPEG/PNG/WebP image URLs. Image URLs refresh automatically; feeds are not recorded here.</p>
 </form>
 </details>
 </section>
@@ -158,56 +146,24 @@
 <div class="context-layer-head">
 <div>
 <h2 id="context-layer-title">Routine context</h2>
-<p>The connected prototype uses Chalk for time-of-day context. This browser demo lets you select and confirm objects without a live service.</p>
+<p>Routine context is available when a Chalk source is connected.</p>
 </div>
-<label class="context-clock">Time of day<input id="context-time" type="time" aria-label="Routine time of day">
+<label class="context-clock">Time of day<input id="context-time" type="time" aria-label="Routine time of day" aria-describedby="context-signal" disabled>
 </label>
 </div>
 <div class="context-layer-status">
 <span class="service-dot" id="context-dot">
 </span>
-<span id="context-signal" aria-live="polite">Loading routine context…</span>
-<span class="context-source">CASAS activity data + confirmed history</span>
-</div>
-</section>
-<div class="studio-workspace">
-<section class="panel arm-stage">
-<div class="panel-head">
-<h2>Intent into motion</h2>
-<span class="eyebrow">Interactive 3D</span>
-</div>
-<div class="studio-objects" role="group" aria-label="Choose an object">
-<button data-studio-object="medicine" aria-pressed="false">Medicine</button>
-<button data-studio-object="mug" aria-pressed="true">Mug</button>
-<button data-studio-object="water" aria-pressed="false">Water</button>
-<button data-studio-object="phone" aria-pressed="false">Phone</button>
-</div>
-<div id="studio-arm" class="studio-arm">
-<p class="note">Loading the arm…</p>
-</div>
-<div class="reach-controls">
-<div>
-<strong id="studio-status" aria-live="polite">Choose an object in the scene.</strong>
-<p id="studio-hint">Confirm when you’re ready to move it.</p>
-</div>
-<button class="primary" id="confirm-reach" disabled>Confirm reach</button>
-</div>
-</section>
-<aside class="panel request-panel">
-<h2>Demo activity</h2>
-<p class="note">Selections and animations in this browser tab.</p>
-<div class="events" id="events">
+<span id="context-signal" aria-live="polite">Chalk is not connected.</span>
+<span class="context-source">No context source connected</span>
 </div>
 <details class="disclosure">
 <summary>Context details</summary>
-<pre id="context-receipt" class="technical">
-</pre>
+<pre id="context-receipt" class="technical">No context connection details are available.</pre>
 </details>
-</aside>
-</div>
+</section>
 <div class="footer">
-<span>Browser simulation · no robot, eye tracker, or microphone connected</span>
-<span>The survey and video-learning loop remain concepts.</span>
+<span>Camera streams display from sources you connect and are not recorded here.</span>
 </div>
 </section>
 <section class="page workspace" id="page-routines" aria-labelledby="routine-title">
@@ -248,13 +204,13 @@
 <section class="panel">
 <h2>Factory analyzes. Chalk recommends.</h2>
 <p class="simple-explainer">Droid summarizes grab history and proposes hourly probabilities. Chalk uses deployed probabilities to rank likely objects alongside gaze.</p>
-<p id="factorybadge" class="factory-status">Checking for an existing report…</p>
-<p id="factory-summary" class="factory-summary">No routine analysis yet.</p>
+<p id="factorybadge" class="factory-status">Factory is not connected</p>
+<p id="factory-summary" class="factory-summary">Connect a routine-analysis service to view its recommendations.</p>
 <div id="routine-highlights" class="routine-highlights">
 </div>
 <details class="disclosure">
 <summary>Read the full analysis</summary>
-<div id="report" class="report">
+<div id="report" class="report">No Factory Droid report is connected to this website.
 </div>
 </details>
 <p class="note">Droid currently reads the synthetic grab baseline plus any logged real picks. CASAS provides a separate starting prior.</p>
@@ -265,8 +221,8 @@
 <div class="eval-shell">
 <div class="page-title">
 <div>
-<h1 id="eval-title">Does time of day help?</h1>
-<p>Compare activity predictions with and without hourly routine context.</p>
+<h1 id="eval-title">Saved synthetic replay results</h1>
+<p>Compare gaze and history predictions from the earlier saved test run.</p>
 </div>
 </div>
 <section class="panel">
