@@ -7,6 +7,7 @@ import { motion, useReducedMotion, useScroll } from 'motion/react';
 import { ArrowLeft, ArrowRight, ArrowUpRight, ChevronDown, Moon, Play, Sun, X } from 'lucide-react';
 import Wordmark from './Wordmark';
 import SpaceScene from './SpaceScene';
+import { LiquidButton } from './components/ui/liquid-glass-button';
 import type { RobotMoment, RobotPhase } from './RobotScene';
 
 const DayExperience = lazy(() => import('./DayExperience'));
@@ -124,7 +125,7 @@ function Home() {
     <a className="skip-link" href="#main">Skip to content</a>
     <header className="site-header container"><Wordmark /><nav aria-label="Main navigation"><a href="#story">Explore</a><a href="#technology">Technology</a></nav><a className="header-cta" href="/demo">Try the demo <ArrowUpRight size={16} /></a></header>
     <main id="main">
-      <section className="hero container" aria-labelledby="hero-title"><div className="hero-copy"><h1 id="hero-title">An assistive arm<br /><em>guided by your gaze</em></h1><p className="hero-description">Look is an assistive robotics prototype for people with limited hand mobility, designed to put everyday objects within reach.</p><div className="hero-actions"><a href="/demo" className="button button-metal">Explore the demo <ArrowUpRight size={17} /></a><VideoLink /></div></div><SpaceScene /></section>
+      <section className="hero container" aria-labelledby="hero-title"><div className="hero-copy"><h1 id="hero-title">An assistive arm<br /><em>guided by your gaze</em></h1><p className="hero-description">Look is an assistive robotics prototype for people with limited hand mobility, designed to put everyday objects within reach.</p><div className="hero-actions"><LiquidButton href="/demo">Explore the demo <ArrowUpRight size={17} aria-hidden="true" /></LiquidButton><VideoLink /></div></div><SpaceScene /></section>
       <section className="story-section container" id="story" aria-labelledby="story-title"><div className="section-heading"><h2 id="story-title">Everyday assistance within reach</h2><p>Explore the tabletop arm with a weekly pill organizer, then try other everyday objects.</p></div><StoryTabs /></section>
       <Technology />
     </main>

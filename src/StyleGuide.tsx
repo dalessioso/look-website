@@ -7,6 +7,7 @@ import './style-guide.css';
 import Wordmark from './Wordmark';
 import RobotScene from './RobotScene';
 import SpaceScene from './SpaceScene';
+import { LiquidButton } from './components/ui/liquid-glass-button';
 
 const colors = [
   { name: 'Paper', hex: '#F6F3EC', usage: 'The main page background.', token: '--paper' },
@@ -55,7 +56,7 @@ export default function StyleGuide() {
   return <main className="sg-page" id="main-content">
     <div className="sg-container">
       <header className="sg-intro">
-        <div className="sg-intro-top"><a href="/" className="sg-back-link">← Back to Look</a><span className="sg-version">Website system · Version 1.5</span></div>
+        <div className="sg-intro-top"><a href="/" className="sg-back-link">← Back to Look</a><span className="sg-version">Website system · Version 1.6</span></div>
         <h1>Look <em>style guide</em></h1>
         <div className="sg-intro-bottom"><div><h2>Website design system</h2><p>A minimal website for an assistive robotics prototype, with linen surfaces, sage accents, a technical SVG shuttle scene, and a visible SO-101 medication-delivery concept.</p></div><a className="sg-text-link" href="/">View the website <ArrowUpRight size={16} aria-hidden="true" /></a></div>
       </header>
@@ -89,11 +90,12 @@ export default function StyleGuide() {
       <section className="sg-section" id="sg-components">
         <SectionTitle title="Components">Use one primary action and accessible Base UI primitives for tabs, dialogs, and supporting disclosures.</SectionTitle>
         <div className="sg-component-grid">
-          <div className="sg-component-card"><span className="sg-eyebrow">Primary action</span><div className="sg-control-display"><a href="/demo" className="sg-primary">Explore the demo <ArrowRight size={16} aria-hidden="true" /></a></div><p>Use silver for the landing action and solid Ink for task confirmation. Both use dark or inverse lettering and a full pill radius. This example opens the object demonstration.</p></div>
+          <div className="sg-component-card"><span className="sg-eyebrow">Primary action</span><div className="sg-control-display"><LiquidButton href="/demo">Explore the demo <ArrowRight size={16} aria-hidden="true" /></LiquidButton></div><p>Use the shared liquid-glass button for the landing action, with layered inset highlights, a translucent linen wash, and clear, unfiltered text. Keep task confirmation solid Ink. This live link opens the object demonstration.</p></div>
           <div className="sg-component-card"><span className="sg-eyebrow">Supporting action</span><div className="sg-control-display"><a href="#sg-motion" className="sg-text-link">Read the motion rules <ArrowRight size={15} aria-hidden="true" /></a></div><p>Use a sage text link when a second solid button would compete with the main action.</p></div>
         </div>
-        <div className="sg-button-states" aria-label="Visual button state specimens"><div><span className="sg-static-button sg-state-hover" aria-hidden="true">Explore the demo <ArrowRight size={14} /></span><span>Hover specimen</span></div><div><span className="sg-static-button sg-state-focus" aria-hidden="true">Explore the demo <ArrowRight size={14} /></span><span>Focus specimen</span></div><div><span className="sg-static-button sg-state-pressed" aria-hidden="true">Explore the demo <ArrowRight size={14} /></span><span>Pressed specimen</span></div><div><button className="sg-primary" disabled type="button">Unavailable</button><span>Disabled specimen</span></div></div>
-        <p className="sg-small">Hover, focus, and pressed examples above are static visual specimens. The disabled example is intentionally inactive.</p>
+        <div className="sg-button-states" aria-label="Liquid-glass button state examples"><div><LiquidButton href="/demo" size="sm" data-preview-state="hover">Explore the demo <ArrowRight size={14} aria-hidden="true" /></LiquidButton><span>Hover example</span></div><div><LiquidButton href="/demo" size="sm" data-preview-state="focus">Explore the demo <ArrowRight size={14} aria-hidden="true" /></LiquidButton><span>Focus example</span></div><div><LiquidButton href="/demo" size="sm" data-preview-state="pressed">Explore the demo <ArrowRight size={14} aria-hidden="true" /></LiquidButton><span>Pressed example</span></div><div><LiquidButton size="sm" disabled>Unavailable</LiquidButton><span>Disabled example</span></div></div>
+        <p className="sg-small">Hover, focus, and pressed appearances are pinned for comparison; every enabled example is a working link to the demo. The disabled example is a native disabled button. The default size has a 50 px minimum height with 14 × 24 px padding; small has a 44 px minimum height with 11 × 18 px padding. Hover moves up 1 px and scales to 1.02; pressing moves down 1 px and scales to .99, with 220 ms transitions.</p>
+        <p className="sg-small">Adapted from <a href="https://21st.dev/@designali-in/components/liquid-glass-button" target="_blank" rel="noreferrer">Ali Imam’s Liquid Glass Button</a> using native controls and scoped CSS alongside the existing Base UI components, without a Tailwind or shadcn migration. The glass effect falls back to a readable wash when backdrop filtering is unavailable.</p>
 
         <div className="sg-tabs-example"><div className="sg-example-heading"><h3>Animated tabs</h3><span>Live component</span></div>
           <Tabs.Root defaultValue="medicine" className="sg-tabs-root">
@@ -143,7 +145,7 @@ export default function StyleGuide() {
       </section>
 
       <footer className="sg-end"><div><span className="sg-eyebrow">The experience</span><p>Landing → Object demonstration</p><span className="sg-small">The style guide stays in the footer, outside the primary navigation.</span></div><a href="/demo" className="sg-text-link">Explore the experience <ArrowUpRight size={16} aria-hidden="true" /></a></footer>
-      <div className="sg-sources"><span>Design and implementation references</span><a href="https://21st.dev/@chetanverma16/components/animated-tabs" target="_blank" rel="noreferrer">Animated tabs inspiration <ArrowUpRight size={12} aria-hidden="true" /></a><a href="https://base-ui.com/react/components/tabs" target="_blank" rel="noreferrer">Base UI tabs <ArrowUpRight size={12} aria-hidden="true" /></a><a href="https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html" target="_blank" rel="noreferrer">WCAG contrast <ArrowUpRight size={12} aria-hidden="true" /></a><a href="https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html" target="_blank" rel="noreferrer">WCAG target size <ArrowUpRight size={12} aria-hidden="true" /></a></div>
+      <div className="sg-sources"><span>Design and implementation references</span><a href="https://21st.dev/@designali-in/components/liquid-glass-button" target="_blank" rel="noreferrer">Liquid Glass Button by Ali Imam <ArrowUpRight size={12} aria-hidden="true" /></a><a href="https://21st.dev/@chetanverma16/components/animated-tabs" target="_blank" rel="noreferrer">Animated tabs inspiration <ArrowUpRight size={12} aria-hidden="true" /></a><a href="https://base-ui.com/react/components/tabs" target="_blank" rel="noreferrer">Base UI tabs <ArrowUpRight size={12} aria-hidden="true" /></a><a href="https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html" target="_blank" rel="noreferrer">WCAG contrast <ArrowUpRight size={12} aria-hidden="true" /></a><a href="https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html" target="_blank" rel="noreferrer">WCAG target size <ArrowUpRight size={12} aria-hidden="true" /></a></div>
     </div>
   </main>;
 }

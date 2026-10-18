@@ -1,6 +1,6 @@
 # Look Website Style Guide
 
-Version 1.5 · October 18, 2026
+Version 1.6 · October 18, 2026
 
 Look uses a minimal linen and sage interface, editorial typography, a technical SVG shuttle illustration, and a visible SO-101 medication-delivery concept. The landing page presents the opportunity for greater agency alongside both the space concept and the tabletop hardware illustration.
 
@@ -69,11 +69,15 @@ Use 14 px corners for the tabletop scene on desktop and 10 px on mobile, 24 px f
 
 ### Primary and supporting actions
 
-The landing page’s primary action uses a restrained silver gradient with graphite text: `linear-gradient(174deg, #FDFDFC 0%, #E1E3DF 42%, #C6CBC3 55%, #EEF0EA 100%)`. Its border is `#FFFFFF`, with a 1 px outer edge of `#BFC5BB`, a light inset edge, and a subtle shadow. Use a 50 px minimum height and a full pill radius. Hover lifts the button by 2 px with a 200 ms state transition; pressing may move it down by 1 px. Reduced motion removes that movement.
+Use the named `LiquidButton` export from `src/components/ui/liquid-glass-button.tsx` for the landing page’s primary action. It is adapted from [Ali Imam’s Liquid Glass Button on 21st.dev](https://21st.dev/@designali-in/components/liquid-glass-button), using native links and buttons with scoped CSS alongside the existing Base UI components. This adaptation does not require a Tailwind or shadcn migration.
+
+The light appearance uses graphite text (`#303B34`), a translucent wash of `linear-gradient(150deg, #fffdf8b8 0%, #f6f3ec42 48%, #d8dfd066 100%)`, layered inset highlights, 10 px backdrop blur, and 115% saturation. A separate SVG displacement layer adds refraction at .52 opacity; text and icons stay unfiltered above it. Keep the full pill radius and transparent 1 px border. The default size has a 50 px minimum height, 14 × 24 px padding, 24 px content gap, and 14 px medium text. Small uses a 44 px minimum height, 11 × 18 px padding, 12 px gap, and 12 px text; large uses 56 px minimum height and 16 × 30 px padding.
+
+Hover moves the control up 1 px and scales it to 1.02; pressing moves it down 1 px and scales it to .99. Transform and highlight transitions last 220 ms. Use a 3 px Sage focus outline with a 5 px offset. Native disabled buttons use .5 opacity and a disabled cursor. Reduced motion removes transitions and interactive movement. Retain the component’s dark appearance, readable fallback wash when backdrop filtering is unavailable, and native forced-color presentation.
 
 Use solid Ink with inverse text for task confirmation buttons and the video dialog action. Use one primary action per section. A sage text link provides the secondary action. Label each control with the action it performs. An unavailable video must be visibly labeled as unavailable or forthcoming; do not imply that a working recording exists before its URL is supplied.
 
-Disabled controls use a native disabled state and remain clearly identifiable. Static state specimens in the guide are labeled as specimens rather than presented as functioning controls.
+Use `href` for a real navigation link; without `href`, `LiquidButton` renders a native button and accepts native disabled and form behavior. The guide uses `data-preview-state="hover"`, `"focus"`, or `"pressed"` to pin an appearance for comparison while keeping each enabled example as a working `/demo` link. Its disabled example is a native disabled button. The state grid becomes one column on narrow screens rather than shrinking the controls below their normal sizes.
 
 ### Tabs
 
@@ -101,7 +105,7 @@ Make the bar decorative with `aria-hidden="true"`. Give the scroll container an 
 | --- | --- | --- |
 | Tab indicator | 250 ms | `cubic-bezier(.22, 1, .36, 1)` |
 | Panel entrance | 220 ms | Fade in and rise 5 px, stable layout |
-| Button feedback | 200 ms | 2 px hover lift and purposeful state change |
+| Liquid-glass feedback | 220 ms | 1 px lift and scale 1.02 on hover; 1 px press and scale .99 when active |
 | Horizontal scroll progress | Direct position mapping | `scaleX` follows actual `scrollXProgress`; no spring or automatic advancement |
 | Shuttle illustration | Slow, subtle cycle | Accessible play and pause controls; suspend animation offscreen |
 | Medicine interaction | Approximately 10–12 seconds | Open the compartment and transfer loose pills individually to the bedside dish; then signal completion |

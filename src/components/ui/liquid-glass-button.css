@@ -1,0 +1,121 @@
+.liquid-glass {
+  --liquid-text: #303b34;
+  --liquid-wash: linear-gradient(150deg, #fffdf8b8 0%, #f6f3ec42 48%, #d8dfd066 100%);
+  --liquid-shadow: 0 0 6px #303b3408, 0 2px 6px #303b3414,
+    inset 3px 3px .5px -3px #303b3494,
+    inset -3px -3px .5px -3px #303b346b,
+    inset 1px 1px 1px -.5px #fffdf8f2,
+    inset -1px -1px 1px -.5px #303b3452,
+    inset 0 0 6px 6px #fffdf830,
+    inset 0 0 2px 2px #303b340f,
+    0 0 12px #fffdf826;
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  gap: 24px;
+  min-height: 50px;
+  margin: 0;
+  padding: 14px 24px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  color: var(--liquid-text);
+  background: transparent;
+  font: 500 14px/1.4 var(--font-sans, sans-serif);
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+  vertical-align: middle;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: transform 220ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.liquid-glass__backdrop,
+.liquid-glass__refraction,
+.liquid-glass__highlight {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* The blur/wash remains visible when a browser cannot render SVG backdrop URLs. */
+.liquid-glass__backdrop {
+  z-index: 0;
+  overflow: hidden;
+  background: var(--liquid-wash);
+  -webkit-backdrop-filter: blur(10px) saturate(115%);
+  backdrop-filter: blur(10px) saturate(115%);
+}
+.liquid-glass__refraction { z-index: 1; overflow: hidden; opacity: .52; }
+.liquid-glass__highlight {
+  z-index: 2;
+  background: linear-gradient(164deg, #fffdf836 0%, transparent 42%, #fffdf81c 100%);
+  box-shadow: var(--liquid-shadow);
+  transition: box-shadow 220ms ease, opacity 220ms ease;
+}
+.liquid-glass__content {
+  position: relative;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: inherit;
+  /* Text and icons never receive a filter or a backdrop filter. */
+}
+.liquid-glass__content > svg { flex-shrink: 0; pointer-events: none; }
+.liquid-glass__definitions {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.liquid-glass--sm { min-height: 44px; padding: 11px 18px; gap: 12px; font-size: 12px; }
+.liquid-glass--lg { min-height: 56px; padding: 16px 30px; }
+.liquid-glass:focus-visible { outline: 3px solid var(--sage, #4a6152); outline-offset: 5px; }
+.liquid-glass:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+.liquid-glass[data-preview-state='hover']:not(:disabled) { transform: translateY(-1px) scale(1.02); }
+.liquid-glass[data-preview-state='hover']:not(:disabled) .liquid-glass__highlight { box-shadow: var(--liquid-shadow), 0 5px 12px #303b3410; }
+.liquid-glass[data-preview-state='focus']:not(:disabled) { outline: 3px solid var(--sage, #4a6152); outline-offset: 5px; }
+.liquid-glass[data-preview-state='pressed']:not(:disabled) { transform: translateY(1px) scale(.99); }
+
+@media (hover: hover) {
+  .liquid-glass:hover:not(:disabled) { transform: translateY(-1px) scale(1.02); }
+  .liquid-glass:hover:not(:disabled) .liquid-glass__highlight { box-shadow: var(--liquid-shadow), 0 5px 12px #303b3410; }
+}
+.liquid-glass:active:not(:disabled) { transform: translateY(1px) scale(.99); }
+
+[data-theme='dark'] .liquid-glass {
+  --liquid-text: #f0f1e7;
+  --liquid-wash: linear-gradient(150deg, #60715e5c 0%, #2636298a 48%, #263429b8 100%);
+  --liquid-shadow: 0 0 8px #00000008, 0 2px 6px #00000029,
+    inset 3px 3px .5px -3.5px #fffdf829,
+    inset -3px -3px .5px -3.5px #fffdf8b3,
+    inset 1px 1px 1px -.5px #fffdf880,
+    inset -1px -1px 1px -.5px #fffdf852,
+    inset 0 0 6px 6px #fffdf812,
+    inset 0 0 2px 2px #fffdf80d,
+    0 0 12px #00000026;
+}
+[data-theme='dark'] .liquid-glass__highlight { background: linear-gradient(164deg, #fffdf81c 0%, transparent 44%, #fffdf808 100%); }
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .liquid-glass__backdrop { background: linear-gradient(150deg, #fffdf8, #e4e9dc); }
+  [data-theme='dark'] .liquid-glass__backdrop { background: linear-gradient(150deg, #42533f, #253429); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .liquid-glass, .liquid-glass__highlight { transition: none; }
+  .liquid-glass:hover:not(:disabled), .liquid-glass:active:not(:disabled) { transform: none; }
+}
+@media (forced-colors: active) {
+  .liquid-glass { color: ButtonText; background: ButtonFace; border: 1px solid ButtonText; }
+  .liquid-glass__backdrop, .liquid-glass__refraction, .liquid-glass__highlight { display: none; }
+  .liquid-glass:focus-visible { outline-color: Highlight; }
+  .liquid-glass:disabled { color: GrayText; border-color: GrayText; opacity: 1; }
+}
