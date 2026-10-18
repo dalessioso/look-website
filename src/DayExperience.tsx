@@ -4,7 +4,7 @@ import { ArrowLeft, ArrowRight, Check, Eye, Mic, RotateCcw } from 'lucide-react'
 import './day.css';
 import Wordmark from './Wordmark';
 import RobotScene, { type RobotPhase } from './RobotScene';
-import AsciiAstronaut from './AsciiAstronaut';
+import SpaceScene from './SpaceScene';
 
 const objects = [
   {
@@ -120,7 +120,7 @@ function ObjectPanel({ item, active, onNext }: { item: ObjectOption; active: boo
     <div className="day-moment">
       <div className="day-moment-top">
         <div className="day-object-copy">
-          <div className="day-astronaut"><AsciiAstronaut compact phase={phase} /></div>
+          <div className="day-astronaut"><SpaceScene compact phase={phase} /></div>
           <h2>{item.title}</h2>
           <p>{item.body}</p>
           {item.id === 'medicine' && <p className="day-concept-note">Medication delivery concept. The compartment is preset in this simulation; medicine and dose selection are not automated.</p>}

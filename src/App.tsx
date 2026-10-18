@@ -6,7 +6,7 @@ import { Button } from '@base-ui/react/button';
 import { motion, useReducedMotion, useScroll } from 'motion/react';
 import { ArrowLeft, ArrowRight, ArrowUpRight, ChevronDown, Moon, Play, Sun, X } from 'lucide-react';
 import Wordmark from './Wordmark';
-import AsciiAstronaut from './AsciiAstronaut';
+import SpaceScene from './SpaceScene';
 import type { RobotMoment, RobotPhase } from './RobotScene';
 
 const DayExperience = lazy(() => import('./DayExperience'));
@@ -101,7 +101,7 @@ function Technology() {
     <div className="section-heading"><h2 id="technology-title">How the prototype works</h2><div className="rail-controls" hidden={!position.overflow}><button type="button" className="icon-button" aria-label="Previous technology component" disabled={!position.back} onClick={() => move(-1)}><ArrowLeft size={18} /></button><button type="button" className="icon-button" aria-label="Next technology component" disabled={!position.next} onClick={() => move(1)}><ArrowRight size={18} /></button></div></div>
     <p className="section-intro">The system is designed around four stages, with confirmation required before a grasp.</p>
     <div className="tech-rail" ref={container} tabIndex={0} role="region" aria-label="Technology components" onKeyDown={event => { if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') { event.preventDefault(); move(event.key === 'ArrowRight' ? 1 : -1); } }}>
-      {technology.map((item, index) => <article className="tech-item" key={item.name}><div className="tech-label"><span>0{index + 1}</span><span>{item.label}</span></div><h3>{item.name}</h3><p>{item.copy}</p></article>)}
+      {technology.map((item) => <article className="tech-item" key={item.name}><div className="tech-label"><span>{item.label}</span></div><h3>{item.name}</h3><p>{item.copy}</p></article>)}
     </div>
     <div className="scroll-track" aria-hidden="true" hidden={!position.overflow}><motion.div className="scroll-progress" style={{ scaleX: scrollXProgress }} /></div>
     <Collapsible.Root className="build-details"><Collapsible.Trigger className="build-trigger">Background analysis and build details <ChevronDown size={16} /></Collapsible.Trigger><Collapsible.Panel className="build-panel"><div className="build-grid"><div><h3>Factory Droid</h3><p>Background analysis turns interaction history into routine suggestions for Chalk. Development uses synthetic routine examples, and this analysis sits outside the live confirmation sequence.</p></div><div><h3>Prototype scope</h3><p>The self-printed arm build is estimated at $100–150 by the team, excluding a complete system cost. The website demonstrates the interaction through a simulation.</p></div></div><a className="text-link" href="https://github.com/THEschildkrote/armtracking" target="_blank" rel="noreferrer">View the project <ArrowUpRight size={15} /></a></Collapsible.Panel></Collapsible.Root>
@@ -124,7 +124,7 @@ function Home() {
     <a className="skip-link" href="#main">Skip to content</a>
     <header className="site-header container"><Wordmark /><nav aria-label="Main navigation"><a href="#story">Explore</a><a href="#technology">Technology</a></nav><a className="header-cta" href="/demo">Try the demo <ArrowUpRight size={16} /></a></header>
     <main id="main">
-      <section className="hero container" aria-labelledby="hero-title"><div className="hero-copy"><h1 id="hero-title">An assistive arm<br /><em>guided by your gaze</em></h1><p className="hero-description">Look is an assistive robotics prototype for people with limited hand mobility, designed to put everyday objects within reach.</p><div className="hero-actions"><a href="/demo" className="button button-metal">Explore the demo <ArrowUpRight size={17} /></a><VideoLink /></div></div><AsciiAstronaut /></section>
+      <section className="hero container" aria-labelledby="hero-title"><div className="hero-copy"><h1 id="hero-title">An assistive arm<br /><em>guided by your gaze</em></h1><p className="hero-description">Look is an assistive robotics prototype for people with limited hand mobility, designed to put everyday objects within reach.</p><div className="hero-actions"><a href="/demo" className="button button-metal">Explore the demo <ArrowUpRight size={17} /></a><VideoLink /></div></div><SpaceScene /></section>
       <section className="story-section container" id="story" aria-labelledby="story-title"><div className="section-heading"><h2 id="story-title">Everyday assistance within reach</h2><p>Explore the tabletop arm with a weekly pill organizer, then try other everyday objects.</p></div><StoryTabs /></section>
       <Technology />
     </main>

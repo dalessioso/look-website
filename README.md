@@ -34,7 +34,7 @@ Open `http://127.0.0.1:8780`. Build with `npm run build`; preview the production
 
 | Route | Purpose |
 | --- | --- |
-| `/` | ASCII shuttle hero, prominent tabletop medication-delivery concept, object tabs, and technology overview |
+| `/` | Technical shuttle illustration, prominent tabletop medication-delivery concept, object tabs, and technology overview |
 | `/demo` | Button-controlled simulation of selecting and confirming an object |
 | `/demo?object=medicine` | Open a specific object; accepts medicine, mug, water, or phone, with medicine as the default |
 | `/day` | Compatibility alias for the object demonstration |
@@ -57,7 +57,7 @@ The active tab pill and panel transitions are inspired by [Chetan Verma’s Anim
 
 ## Content and assets
 
-The hero uses an ASCII astronaut on a shuttle, with a large visibly connected robotic arm assisting with a tool, defined in `src/AsciiAstronaut.tsx`. The entire composition is built from monospaced text frames at approximately five frames per second, with accessible play/pause controls and a static reduced-motion default. The compact face continues to accompany selection, confirmation, and completion in the object demonstration.
+The hero uses an editable SVG illustration in `src/SpaceScene.tsx`, styled by `src/space-scene.css`. It shows an adult-proportioned astronaut with a closed visor, a shuttle, and a visibly connected mechanical arm holding a wrench, using the website's linen, sage, and metallic palette. Movement is slow and subtle, with native play/pause controls, a static reduced-motion default, and animation suspended offscreen. The shared component supports `compact`, `phase`, and `className` props; its compact form accompanies interaction states in the object demonstration without replacing the text status.
 
 The SO-101-style tabletop arm remains a procedural Three.js illustration in `src/RobotScene.tsx`. Its geometry, materials, lighting, joints, and animation are editable source code rather than a downloaded 3D asset or an engineering twin of the physical arm.
 

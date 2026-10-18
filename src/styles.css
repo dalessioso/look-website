@@ -95,7 +95,6 @@
   .tech-rail::-webkit-scrollbar { display:none; }
   .tech-item { flex:0 0 30%; min-width:280px; border-top:1px solid var(--line); padding-top:18px; scroll-snap-align:start; }
   .tech-label { display:flex; gap:20px; color:var(--muted); font-size:11px; }
-  .tech-label>span:first-child { font-variant-numeric:tabular-nums; }
   .tech-item h3 { margin-top:32px; font-family:var(--font-serif); font-size:32px; font-weight:400; letter-spacing:-.025em; }
   .tech-item p { margin-top:12px; max-width:310px; color:var(--muted); font-size:14px; line-height:1.75; padding-right:14px; }
   .scroll-track { height:2px; background:var(--line); overflow:hidden; margin-top:6px; }

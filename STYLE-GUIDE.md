@@ -1,8 +1,8 @@
 # Look Website Style Guide
 
-Version 1.4 · October 18, 2026
+Version 1.5 · October 18, 2026
 
-Look uses a minimal linen and sage interface, editorial typography, a stop-motion ASCII shuttle scene, and a visible SO-101 medication-delivery concept. The landing page presents the opportunity for greater agency alongside both the space concept and the tabletop hardware illustration.
+Look uses a minimal linen and sage interface, editorial typography, a technical SVG shuttle illustration, and a visible SO-101 medication-delivery concept. The landing page presents the opportunity for greater agency alongside both the space concept and the tabletop hardware illustration.
 
 This specification governs the website at `/` and `/demo`, with `/day` retained as a compatibility alias. The interactive reference lives at `/style-guide` and is linked from the footer. The pitch deck remains a separate artifact with its own visual style.
 
@@ -10,7 +10,7 @@ This specification governs the website at `/` and `/demo`, with `/day` retained 
 
 The approved hero headline is “An assistive arm guided by your gaze.” Use descriptive headings and connected prose rather than paired short sentence fragments or repeated slogans. Give each section one purpose, with space and alignment providing structure before adding a card.
 
-Use an astronaut on a shuttle with a large connected robotic arm assisting with a tool, rendered entirely in monospaced text for the hero. Keep the procedural tabletop arm prominent in a separate landing-page section, with a weekly pill organizer and loose-pill delivery to a separate bedside table. Linen and sage remain the color direction. Omit hero eyebrows, decorative caption pills, introductory bands, repeated closing calls to action, and repeated routine-versus-choice statements. Full-page shaders, violet glows, decorative dashboards, and competing accent colors are outside this system.
+Use a mature technical SVG illustration of an astronaut on a shuttle with a large connected mechanical arm holding a wrench. Give the astronaut adult proportions and a closed visor, with a restrained pose and recognizable suit construction. Keep the procedural tabletop arm prominent in a separate landing-page section, with a weekly pill organizer and loose-pill delivery to a separate bedside table. Linen, sage, and restrained metallic materials define the scene. Omit decorative section numbers, hero eyebrows, decorative caption pills, introductory bands, repeated closing calls to action, and repeated routine-versus-choice statements. Full-page shaders, violet glows, decorative dashboards, and competing accent colors are outside this system.
 
 The supported introduction is “Look explores how gaze-controlled robotics can make everyday objects easier to reach for people with limited hand mobility.” Empowerment is expressed through agency and opportunity, without an invented biography, testimonial, or promise of restored ability. The astronaut is a visual metaphor for possibility; it does not equate disability with a spacesuit or establish a space-ready product.
 
@@ -54,7 +54,6 @@ Use locally bundled DM Sans for the interface and body copy, with weights 400, 5
 | Eyebrow | DM Sans 600 | 11 px / 1.5 | Uppercase, 1.7 px tracking |
 | Compact supporting copy | DM Sans 400 | 12–14 px / 1.6–1.7 | Captions and technical notes |
 | Decorative metadata | DM Sans 400 | 10–12 px / 1.5–1.7 | Nonessential scene labels and timestamps |
-| ASCII illustration | Fixed-width monospace | Responsive size with fixed character spacing and line-height | Shuttle, astronaut, connected arm, and tool built entirely from text characters |
 
 Keep body copy around 45–65 characters per line. Use a single H1 and a logical heading sequence. Display headings may use modest negative tracking; do not tighten paragraph text. At narrow widths, wrap naturally and use a local size adjustment only when needed to prevent overflow.
 
@@ -104,20 +103,20 @@ Make the bar decorative with `aria-hidden="true"`. Give the scroll container an 
 | Panel entrance | 220 ms | Fade in and rise 5 px, stable layout |
 | Button feedback | 200 ms | 2 px hover lift and purposeful state change |
 | Horizontal scroll progress | Direct position mapping | `scaleX` follows actual `scrollXProgress`; no spring or automatic advancement |
-| ASCII stop-motion | Approximately 5 fps | Discrete text frames with accessible play and pause controls |
+| Shuttle illustration | Slow, subtle cycle | Accessible play and pause controls; suspend animation offscreen |
 | Medicine interaction | Approximately 10–12 seconds | Open the compartment and transfer loose pills individually to the bedside dish; then signal completion |
 | Other object interactions | Approximately 4 seconds (4.2 seconds in code) | Approach, grasp, lift, deliver, and release; then signal completion |
 | Reduced motion | 0 ms | Remove decorative transitions and movement |
 
-Respect `prefers-reduced-motion: reduce` with a static default ASCII frame and direct completed poses for confirmed arm interactions. Preserve every action, label, and status. Keep continuous motion limited to the pausable ASCII character, without parallax, autoplay video, rapid flashing, or animation behind reading content. A simulation can show progress, but its state must also be explained in text and must not depend on motion alone.
+Respect `prefers-reduced-motion: reduce` with a static shuttle illustration and direct completed poses for confirmed arm interactions. Preserve every action, label, and status. Keep continuous motion limited to the pausable shuttle illustration, without parallax, autoplay video, rapid flashing, or animation behind reading content. Suspend decorative animation while the scene is offscreen. A simulation can show progress, but its state must also be explained in text and must not depend on motion alone.
 
-## ASCII shuttle illustration
+## Technical shuttle illustration
 
-Use the shared `src/AsciiAstronaut.tsx` component to draw an astronaut on a shuttle with a large robotic arm helping with a tool. Render the whole composition in fixed-width text characters, keeping the arm visibly connected to the shuttle and the tool aligned with its gripper throughout the animation. Preserve the text grid, stable shuttle structure, and legible facial features as the layout scales.
+Use the shared `src/SpaceScene.tsx` component and `src/space-scene.css` to draw the shuttle, astronaut, connected mechanical arm, and wrench as editable SVG. The astronaut has adult proportions, a closed visor, and a restrained working pose. Use clear suit panels, mechanical joints, and structural connections, with linen, sage, and metallic materials that belong to the surrounding page.
 
-Change discrete frames at approximately five frames per second to create a stop-motion effect, without interpolation or rapid flashing. Keep native play and pause controls available throughout the animation. Reduced motion starts with a static frame, and changing expression must not require an animated transition.
+Keep the arm attached to the shuttle and the wrench aligned with its gripper throughout movement. Use slow, subtle articulation within a stable composition. Keep native play and pause controls available, suspend animation offscreen, and start with a static scene for reduced motion. Avoid exaggerated gestures, camera effects, and rapid flashing.
 
-Use the full shuttle composition as the default hero illustration and retain the compact face beside the SO-101 scene. The compact expression may reflect selection, confirmation, and completion, while the adjacent text status remains the authoritative explanation of the interaction. Hide raw character noise from assistive technology and provide a concise description of the illustration instead.
+Use the full shuttle composition in the hero and the guide specimen. The component supports `compact`, `phase`, and `className` props. Its compact form beside the SO-101 scene may reflect selection, confirmation, and completion, while adjacent text remains the explanation of the interaction. Provide one concise accessible description of the scene and keep decorative SVG details out of the accessibility tree.
 
 Space is a visual metaphor and a possible future context. Do not imply NASA involvement, flight readiness, space qualification, or that using a spacesuit is equivalent to living with a disability.
 
@@ -178,18 +177,18 @@ These are acceptance targets, not a claim that the entire website has been certi
 
 The landing page at `/` keeps both visual concepts visible:
 
-1. A product introduction with the approved headline, ASCII shuttle and assisting arm, and one primary route into `/demo`.
+1. A product introduction with the approved headline, technical shuttle illustration and assisting arm, and one primary route into `/demo`.
 2. A prominent inline SO-101 medication-delivery scene with optional Preview, Stop, and Replay controls, linked to `/demo?object=medicine`.
 3. Medicine, Mug, Water, and Phone tabs describing the object interactions.
 4. A concise horizontal technology rail, with Factory background analysis in a supporting disclosure.
 
 A secondary “Watch video” action stays subordinate and reflects the video’s actual availability. The object demonstration uses a consistent select, confirm, and assist sequence, clearly identified as a website simulation. Direct links may select an object with `/demo?object=medicine`, `/demo?object=mug`, `/demo?object=water`, or `/demo?object=phone`; Medicine is the default when no supported object is specified.
 
-The style guide at `/style-guide` is a reference for the team, reached through the footer rather than the main navigation. Use Vercel’s configured SPA fallback so direct visits to `/demo`, its `/day` compatibility alias, and `/style-guide` resolve correctly. Build and preview the production bundle before release, then check all routes, ASCII play/pause, scene rendering, mobile layout, keyboard navigation, dialogs, confirmation behavior, cancellation, and reduced motion.
+The style guide at `/style-guide` is a reference for the team, reached through the footer rather than the main navigation. Use Vercel’s configured SPA fallback so direct visits to `/demo`, its `/day` compatibility alias, and `/style-guide` resolve correctly. Build and preview the production bundle before release, then check all routes, shuttle play/pause and offscreen suspension, scene rendering, mobile layout, keyboard navigation, dialogs, confirmation behavior, cancellation, and reduced motion.
 
 ## Editable scene source
 
-The ASCII character is authored as monospaced text frames in `src/AsciiAstronaut.tsx`. The tabletop illustration is authored in `src/RobotScene.tsx` using Three.js rather than a photograph or downloaded model. Edit geometry, joint hierarchy, materials, camera, and animation in source, and keep the shared components consistent across the landing page, object demonstration, and guide.
+The shuttle scene is authored as SVG in `src/SpaceScene.tsx`, with materials and motion in `src/space-scene.css`. The tabletop illustration is authored in `src/RobotScene.tsx` using Three.js rather than a photograph or downloaded model. Edit geometry, joint hierarchy, materials, camera, and animation in source, and keep the shared components consistent across the landing page, object demonstration, and guide.
 
 Suggested caption: “Illustrative SO-101 tabletop simulation.” The accessible description should identify the arm, the current object, and the demonstrated state without claiming that a physical robot moved.
 
